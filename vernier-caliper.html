@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Virtual Lab - Vernier Caliper Simulator</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            background-color: #0b0e14 !important;
+            color: #c9d1d9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Glassmorphism Cards */
+        .cyber-card {
+            background: rgba(22, 27, 34, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* Canvas Box Styling */
+        .canvas-container {
+            background: #161b22;
+            border: 2px solid #30363d;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            background: #0d1117;
+        }
+
+        /* Custom Range Slider */
+        .form-range::-webkit-slider-thumb {
+            background: #00e676;
+            box-shadow: 0 0 10px #00e676;
+        }
+
+        .glowing-text {
+            text-shadow: 0 0 10px rgba(0, 230, 118, 0.5);
+        }
+
+        .glowing-btn {
+            box-shadow: 0 0 10px rgba(0, 230, 118, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .glowing-btn:hover {
+            box-shadow: 0 0 20px rgba(0, 230, 118, 0.6);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <nav class="navbar navbar-dark bg-dark border-bottom border-secondary py-3">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-success glowing-text" href="#">
+                <i class="fa-solid fa-flask me-2"></i>NEXUS VIRTUAL LABS
+            </a>
+            <span class="badge bg-outline-info border border-info text-info">A/L Physics Practical #01</span>
+        </div>
+    </nav>
+
+    <div class="container my-4">
+        <!-- Practical Title -->
+        <div class="row mb-4">
+            <div class="col-12 text-center text-md-start">
+                <h2 class="fw-bold text-white mb-1">🔬 වර්නියර් අගය (Vernier Caliper)</h2>
+                <p class="text-muted">වර්නියර් කැලිපරය භාවිතයෙන් කුඩා දිගක්, විෂ්කම්භයක් හෝ ගැඹුරක් නිවැරදිව මැනීම.</p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Left Column: Interactive Canvas & Controls -->
+            <div class="col-lg-8">
+                <div class="cyber-card p-3 p-md-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold text-info mb-0"><i class="fa-solid fa-gamepad me-2"></i>Virtual Apparatus Simulator</h5>
+                        <button id="reset_btn" class="btn btn-outline-warning btn-sm"><i class="fa-solid fa-rotate-left me-1"></i> Reset</button>
+                    </div>
+
+                    <!-- Canvas Interactive Canvas -->
+                    <div class="canvas-container mb-3">
+                        <canvas id="vernierCanvas" width="800" height="250"></canvas>
+                    </div>
+
+                    <!-- Simulator Controls -->
+                    <div class="p-3 rounded bg-dark border border-secondary mb-3">
+                        <label for="positionSlider" class="form-label d-flex justify-content-between fw-bold text-white">
+                            <span><i class="fa-solid fa-arrows-left-right me-2 text-success"></i>චලනය කරන්න (Move Jaw):</span>
+                            <span id="sliderValueText" class="text-success">0.00 mm</span>
+                        </label>
+                        <input type="range" class="form-range" id="positionSlider" min="0" max="50" step="0.05" value="0">
+                    </div>
+
+                    <!-- Live Readings Box -->
+                    <div class="row g-2 text-center">
+                        <div class="col-4">
+                            <div class="p-2 border border-secondary rounded bg-dark">
+                                <small class="text-muted d-block" style="font-size: 0.75rem;">ප්‍රධාන පරිමාණය (MS)</small>
+                                <span id="msr_text" class="fw-bold text-white fs-5">0.0 mm</span>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-2 border border-secondary rounded bg-dark">
+                                <small class="text-muted d-block" style="font-size: 0.75rem;">වර්නියර් සමපාත අංකය (V)</small>
+                                <span id="ver_text" class="fw-bold text-info fs-5">0</span>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-2 border border-success rounded bg-dark">
+                                <small class="text-success d-block fw-bold" style="font-size: 0.75rem;">මුළු පාඨාංකය (Reading)</small>
+                                <span id="total_reading_text" class="fw-bold text-success fs-5 glowing-text">0.00 mm</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Theory & Test Quiz -->
+            <div class="col-lg-4">
+                <!-- Theory Card -->
+                <div class="cyber-card p-3 p-md-4 mb-4">
+                    <h5 class="fw-bold text-warning mb-3"><i class="fa-solid fa-book-open me-2"></i>සිද්ධාන්ත (Theory)</h5>
+                    <ul class="list-unstyled small lh-lg">
+                        <li class="mb-2">🔹 <strong>කූඩාම මිනුම (Least Count):</strong><br>
+                            $\text{LC} = 1\text{ MSD} - 1\text{ VSD} = 0.1\text{ mm} \text{ (හෝ } 0.01\text{ cm)}$
+                        </li>
+                        <li class="mb-2">🔹 <strong>පාඨාංකය ලබාගන්නා ආකාරය:</strong><br>
+                            $$\text{Reading} = \text{MS} + (\text{Vernier Coincidence} \times \text{LC})$$
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Self Assessment Test Card -->
+                <div class="cyber-card p-3 p-md-4">
+                    <h5 class="fw-bold text-success mb-3"><i class="fa-solid fa-pen-to-square me-2"></i>ස්වයං ඇගයීම (Quiz)</h5>
+                    <p class="small text-muted">පහත බොත්තම ඔබා සසම්භාවී (Random) ස්ථානයකට සකසා පාඨාංකය සොයා ටයිප් කරන්න.</p>
+                    
+                    <button id="random_quiz_btn" class="btn btn-primary w-100 mb-3 fw-bold glowing-btn">🎯 Random Reading එකක් ගන්න</button>
+
+                    <div id="quiz_box" class="d-none">
+                        <div class="mb-2">
+                            <label class="form-label small text-white">ඔබේ පාඨාංකය (mm වලින්):</label>
+                            <input type="number" step="0.05" id="user_quiz_input" class="form-control bg-dark text-white border-secondary" placeholder="eg: 12.45">
+                        </div>
+                        <button id="check_quiz_btn" class="btn btn-success w-100 fw-bold">පිළිතුර පරීක්ෂා කරන්න</button>
+                        <div id="quiz_result" class="mt-2 text-center fw-bold"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MathJax for LaTeX Equations -->
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+    <!-- Canvas Simulation Script -->
+    <script>
+        const canvas = document.getElementById("vernierCanvas");
+        const ctx = canvas.getContext("2d");
+        const slider = document.getElementById("positionSlider");
+
+        // Calibration Constants
+        const scaleStartX = 80;
+        const mainScaleY = 80;
+        const mmPixelSpacing = 10; // 1mm = 10px
+
+        let currentValue = 0; // in mm
+        let isQuizMode = false;
+
+        function drawSimulator(value) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 1. Draw Main Scale Body
+            ctx.fillStyle = "#21262d";
+            ctx.fillRect(40, mainScaleY - 40, 720, 70);
+            ctx.strokeStyle = "#484f58";
+            ctx.strokeRect(40, mainScaleY - 40, 720, 70);
+
+            // Fixed Jaw
+            ctx.fillStyle = "#30363d";
+            ctx.beginPath();
+            ctx.moveTo(40, mainScaleY - 40);
+            ctx.lineTo(40, mainScaleY + 120);
+            ctx.lineTo(80, mainScaleY + 120);
+            ctx.lineTo(80, mainScaleY + 30);
+            ctx.lineTo(scaleStartX, mainScaleY - 40);
+            ctx.fill();
+            ctx.stroke();
+
+            // 2. Main Scale Markings (0 to 60 mm)
+            ctx.fillStyle = "#ffffff";
+            ctx.strokeStyle = "#ffffff";
+            ctx.font = "12px monospace";
+            ctx.textAlign = "center";
+
+            for (let i = 0; i <= 65; i++) {
+                let x = scaleStartX + (i * mmPixelSpacing);
+                let isMajor = (i % 10 === 0);
+                let isHalf = (i % 5 === 0);
+                let tickHeight = isMajor ? 25 : (isHalf ? 16 : 10);
+
+                ctx.beginPath();
+                ctx.moveTo(x, mainScaleY + 30);
+                ctx.lineTo(x, mainScaleY + 30 - tickHeight);
+                ctx.lineWidth = isMajor ? 2 : 1;
+                ctx.stroke();
+
+                if (isMajor) {
+                    ctx.fillText(i / 10, x, mainScaleY - 2); // CM Numbers
+                }
+            }
+
+            // 3. Sliding Vernier Jaw
+            let vernierShift = value * mmPixelSpacing;
+            let vernierX = scaleStartX + vernierShift;
+
+            // Moving Jaw Body
+            ctx.fillStyle = "rgba(0, 210, 255, 0.2)";
+            ctx.strokeStyle = "#00d2ff";
+            ctx.lineWidth = 1.5;
+
+            ctx.beginPath();
+            ctx.moveTo(vernierX - 40, mainScaleY - 35);
+            ctx.lineTo(vernierX + 120, mainScaleY - 35);
+            ctx.lineTo(vernierX + 120, mainScaleY + 80);
+            ctx.lineTo(vernierX, mainScaleY + 120);
+            ctx.lineTo(vernierX, mainScaleY + 30);
+            ctx.lineTo(vernierX - 40, mainScaleY + 30);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // 4. Vernier Scale Markings (10 divisions = 9mm)
+            ctx.fillStyle = "#00e676";
+            ctx.strokeStyle = "#00e676";
+
+            for (let j = 0; j <= 10; j++) {
+                // 10 VSD = 9 MSD (0.9 mm spacing)
+                let vx = vernierX + (j * 0.9 * mmPixelSpacing);
+                
+                ctx.beginPath();
+                ctx.moveTo(vx, mainScaleY + 30);
+                ctx.lineTo(vx, mainScaleY + 48);
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                if (j % 5 === 0) {
+                    ctx.fillText(j, vx, mainScaleY + 62);
+                }
+            }
+
+            updateCalculations(value);
+        }
+
+        function updateCalculations(val) {
+            let msr = Math.floor(val); // Main scale reading
+            let vernierCoincide = Math.round((val - msr) / 0.1);
+            if (vernierCoincide === 10) vernierCoincide = 0;
+
+            let total = (msr + (vernierCoincide * 0.1)).toFixed(2);
+
+            document.getElementById("sliderValueText").innerText = val.toFixed(2) + " mm";
+            
+            if(!isQuizMode) {
+                document.getElementById("msr_text").innerText = msr.toFixed(1) + " mm";
+                document.getElementById("ver_text").innerText = vernierCoincide;
+                document.getElementById("total_reading_text").innerText = total + " mm";
+            } else {
+                document.getElementById("msr_text").innerText = "???";
+                document.getElementById("ver_text").innerText = "???";
+                document.getElementById("total_reading_text").innerText = "???";
+            }
+        }
+
+        // Event Listeners
+        slider.addEventListener("input", (e) => {
+            currentValue = parseFloat(e.target.value);
+            drawSimulator(currentValue);
+        });
+
+        document.getElementById("reset_btn").addEventListener("click", () => {
+            isQuizMode = false;
+            slider.value = 0;
+            currentValue = 0;
+            document.getElementById("quiz_box").classList.add("d-none");
+            drawSimulator(0);
+        });
+
+        // Quiz System Logic
+        document.getElementById("random_quiz_btn").addEventListener("click", () => {
+            isQuizMode = true;
+            let randomVal = (Math.floor(Math.random() * 400) / 10).toFixed(2); // Random 0-40mm with 0.1 step
+            currentValue = parseFloat(randomVal);
+            slider.value = currentValue;
+            
+            document.getElementById("quiz_box").classList.remove("d-none");
+            document.getElementById("quiz_result").innerText = "";
+            document.getElementById("user_quiz_input").value = "";
+            
+            drawSimulator(currentValue);
+        });
+
+        document.getElementById("check_quiz_btn").addEventListener("click", () => {
+            let userAns = parseFloat(document.getElementById("user_quiz_input").value);
+            let actualAns = parseFloat(currentValue.toFixed(2));
+
+            let resDiv = document.getElementById("quiz_result");
+            if (Math.abs(userAns - actualAns) < 0.02) {
+                resDiv.className = "mt-2 text-center fw-bold text-success";
+                resDiv.innerText = "🎉 නිවැරදියි! ඉතාම හොඳයි.";
+                isQuizMode = false;
+                drawSimulator(currentValue); // Show actual answers
+            } else {
+                resDiv.className = "mt-2 text-center fw-bold text-danger";
+                resDiv.innerText = "❌ වැරදියි! නැවත උත්සාහ කරන්න.";
+            }
+        });
+
+        // Initial Draw
+        drawSimulator(0);
+    </script>
+</body>
+</html>

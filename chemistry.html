@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A/L Chemistry Master Virtual Lab Suite - Complete Edition</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-dark: #080d1a;
+            --card-bg: rgba(15, 23, 42, 0.9);
+            --border-color: rgba(0, 242, 254, 0.2);
+            --neon-blue: #00f2fe;
+            --neon-green: #00ff88;
+            --neon-amber: #ffb703;
+            --neon-pink: #ff0055;
+            --neon-purple: #9d4edd;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #e2e8f0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(16px);
+            border-radius: 16px;
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6);
+        }
+
+        .glow-title {
+            text-shadow: 0 0 12px rgba(0, 242, 254, 0.6);
+        }
+
+        .canvas-container {
+            background: radial-gradient(circle at center, #111927 0%, #050811 100%);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(215, 221, 221, 0.15);
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 420px;
+        }
+
+        .form-control-cyber, .form-select-cyber {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid var(--border-color);
+            color: #fff;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .form-control-cyber:focus, .form-select-cyber:focus {
+            background: rgba(15, 23, 42, 0.95);
+            border-color: var(--neon-blue);
+            color: #fff;
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.4);
+        }
+
+        .form-range::-webkit-slider-thumb {
+            background: var(--neon-blue);
+            box-shadow: 0 0 12px var(--neon-blue);
+        }
+
+        .badge-cyber {
+            background: rgba(151, 211, 214, 0.1);
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+        }
+
+        /* --- UPDATED MOBILE & SIDEBAR STYLES --- */
+        .prac-item-btn {
+            background: rgba(255, 255, 255, 0.03);
+            color: #ffffff;
+            border: 1px solid var(--border-color);
+            margin-bottom: 8px;
+            border-radius: 12px !important;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            text-align: left;
+            width: 100%;
+        }
+
+        .prac-item-btn:hover, .prac-item-btn.active {
+            background: rgba(0, 242, 254, 0.12);
+            color: #fff;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .prac-no-badge {
+            background: rgba(0, 242, 254, 0.15);
+            color: var(--neon-blue);
+            border: 1px solid var(--neon-blue);
+            font-weight: 700;
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 8px;
+            min-width: 38px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .prac-item-btn.active .prac-no-badge {
+            background: var(--neon-blue);
+            color: #000;
+            box-shadow: 0 0 8px var(--neon-blue);
+        }
+
+        .prac-title-text {
+            font-weight: 600;
+            font-size: 0.9rem;
+            line-height: 1.3;
+            color: #f1f5f9;
+        }
+
+        .prac-cat-text {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+
+        .prac-scroll-area {
+            max-height: 72vh;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .prac-scroll-area::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        .prac-scroll-area::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 991px) {
+            .prac-scroll-area {
+                display: flex;
+                flex-direction: row;
+                overflow-x: auto;
+                overflow-y: hidden;
+                max-height: none;
+                padding-bottom: 10px;
+                gap: 10px;
+                scroll-snap-type: x mandatory;
+            }
+
+            .prac-item-btn {
+                flex: 0 0 260px;
+                margin-bottom: 0;
+                scroll-snap-align: start;
+                white-space: normal;
+                height: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Header -->
+    <nav class="navbar navbar-dark border-bottom border-secondary py-3" style="background: #050811;">
+        <div class="container-fluid px-3 px-md-4">
+            <a class="navbar-brand fw-bold text-info glow-title fs-5 fs-md-4 mb-1 mb-sm-0" href="#">
+                <i class="fa-solid fa-vial-circle-check me-2"></i>NEXUS CHEMISTRY LAB
+            </a>
+            <span class="badge badge-cyber px-3 py-2"><i class="fa-solid fa-flask me-1"></i> G.C.E. A/L Chemistry</span>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-3 px-md-4 my-3 my-md-4">
+        <div class="row g-3 g-md-4">
+            
+            <!-- Sidebar Navigation: All 42 Practicals -->
+            <div class="col-xl-3 col-lg-4">
+                <div class="glass-card p-3">
+                    <h6 class="fw-bold text-info mb-3 d-flex align-items-center justify-content-between">
+                        <span><i class="fa-solid fa-list-check me-2"></i>ප්‍රායෝගික පරීක්ෂණ</span>
+                        <span class="badge bg-secondary rounded-pill small">01 - 42</span>
+                    </h6>
+                    <div class="prac-scroll-area" id="practical-list" role="tablist">
+                        <!-- Dynamic Buttons generated via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dynamic Control Panel & Simulation Area -->
+            <div class="col-xl-9 col-lg-8">
+                <div class="row g-3 g-md-4">
+                    
+                    <!-- Dynamic Controls Panel -->
+                    <div class="col-xl-5 col-lg-12">
+                        <div class="glass-card p-3 p-md-4">
+                            <h5 class="fw-bold text-white mb-3 fs-6 fs-md-5" id="pracTitle"><i class="fa-solid fa-sliders text-info me-2"></i>පරාමිතීන් (Parameters)</h5>
+                            
+                            <div id="dynamicControls">
+                                <!-- Dynamic Controls injected by JavaScript -->
+                            </div>
+
+                            <div class="p-3 bg-dark bg-opacity-50 rounded border border-secondary my-3">
+                                <h6 class="fw-bold text-info small mb-2"><i class="fa-solid fa-calculator me-2"></i>නිරීක්ෂණ සහ ගණනය කිරීම්:</h6>
+                                <div id="dynamicCalc" class="lh-lg small text-slate-300">
+                                    <!-- Dynamic Readouts injected by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2D Canvas Area -->
+                    <div class="col-xl-7 col-lg-12">
+                        <div class="glass-card p-3 mb-3">
+                            <h6 class="fw-bold text-info mb-2" id="canvasTitle"><i class="fa-solid fa-flask-vial me-2"></i>2D Interactive Simulation Panel</h6>
+                            <div class="canvas-container">
+                                <canvas id="chemCanvas" width="800" height="420"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-3">
+                            <h6 class="fw-bold text-white mb-2"><i class="fa-solid fa-book-open text-info me-2"></i>A/L Theory Note (විභාගයට වැදගත් සිද්ධාන්ත කරුණු)</h6>
+                            <div class="small text-slate-300 mb-0" id="theoryNote" style="line-height: 1.6;">
+                                <!-- Dynamic Theory Note -->
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        const canvas = document.getElementById("chemCanvas");
+        const ctx = canvas.getContext("2d");
+
+        // Complete List of A/L Chemistry Practicals (1-42)
+        const practicalsData = [
+            { id: 1, title: "දැාල සිඛා පරීක්ෂාව (Flame Test)", cat: "Atomic Structure" },
+            { id: 2, title: "ඇසිඩ්-බේස් අනුමාපනය (Acid-Base)", cat: "Volumetric Analysis" },
+            { id: 3, title: "KMnO₄ රෙඩොක්ස් අනුමාපනය", cat: "Redox Titrations" },
+            { id: 4, title: "අයඩොමිතික අනුමාපනය (Iodometry)", cat: "Iodine Titration" },
+            { id: 5, title: "Lassaigne's Test (මූලද්‍රව්‍ය පරීක්ෂාව)", cat: "Organic Qualitative" },
+            { id: 6, title: "කාබනික ක්‍රියාකාරී කාණ්ඩ පරීක්ෂණ", cat: "Functional Groups" },
+            { id: 7, title: "උදාසීනීකරණ තාපය (Thermochemistry)", cat: "Physical Chemistry" },
+            { id: 8, title: "ප්‍රතික්‍රියා ශීඝ්‍රතාව (Chemical Kinetics)", cat: "Kinetics Test" },
+            { id: 9, title: "වායු නියම පරීක්ෂාව (Gas Laws)", cat: "P-V-T Relations" },
+            { id: 10, title: "රසායනික සමතුලිතතාව (Kc)", cat: "Equilibrium" },
+            { id: 11, title: "අකාබනික ගුණාත්මක විෂ්ලේෂණය", cat: "Inorganic Cations & Anions" },
+            { id: 12, title: "pH සහ දර්ශක වර්ණ වෙනස්වීම්", cat: "Equilibrium & pH" },
+            { id: 13, title: "බෆර් ද්‍රාවණවල ධාරිතාව (Buffer Action)", cat: "Acid-Base Equilibrium" },
+            { id: 14, title: "ද්‍රාව්‍යතා ගුණිතය (Ksp)", cat: "Solubility Product" },
+            { id: 15, title: "බෙදීම් සංගුණකය (Partition Coefficient)", cat: "Phase Equilibrium" },
+            { id: 16, title: "වාෂ්ප පීඩනය සහ රවුල් නියමය", cat: "Liquid Systems" },
+            { id: 17, title: "හිමාංක අවනමනය (Freezing Point Depression)", cat: "Colligative Properties" },
+            { id: 18, title: "විද්‍යුත් රසායනික කෝෂ (Galvanic Cells)", cat: "Electrochemistry" },
+            { id: 19, title: "විද්‍යුත් විච්ඡේදනය (Electrolysis)", cat: "Electrochemistry" },
+            { id: 20, title: "ඇල්කොහොල් පරීක්ෂණ (Lucas Test)", cat: "Organic Chemistry" },
+            { id: 21, title: "ඇල්ඩියහයිඩ / කීටෝන පරීක්ෂණ (Fehling's)", cat: "Organic Chemistry" },
+            { id: 22, title: "කාබොක්සිලික් අම්ල Esterification", cat: "Organic Synthesis" },
+            { id: 23, title: "ඇමීන් වර්ගීකරණය (Hinsberg Test)", cat: "Organic Chemistry" },
+            { id: 24, title: "ඇස්පිරින් සංස්ලේෂණය (Aspirin Prep)", cat: "Applied Organic" },
+            { id: 25, title: "සබන් නිපදවීම (Saponification)", cat: "Industrial Chemistry" },
+            { id: 26, title: "d-ගොනුවේ සංකීර්ණ අයන වර්ණ", cat: "Transition Metals" },
+            { id: 27, title: "K₂Cr₂O₇ ඔක්සිකාරක ගුණය", cat: "Inorganic Chemistry" },
+            { id: 28, title: "හලෝජනවල ප්‍රතික්‍රියාශීලීතාව", cat: "Group 17 Elements" },
+            { id: 29, title: "නයිට්‍රජන් වායුව පිළියෙල කිරීම", cat: "Inorganic Prep" },
+            { id: 30, title: "ඔක්සිජන් වායුව පිළියෙල කිරීම", cat: "Inorganic Prep" },
+            { id: 31, title: "ක්ලෝරීන් වායුව පිළියෙල කිරීම", cat: "Inorganic Prep" },
+            { id: 32, title: "ඇමෝනියා වායුව පිළියෙල කිරීම", cat: "Inorganic Prep" },
+            { id: 33, title: "සල්ෆර් ඩයොක්සයිඩ් පරීක්ෂාව", cat: "Gaseous Inorganic" },
+            { id: 34, title: "ජලයේ තදතාවය නිර්ණය (EDTA Titration)", cat: "Analytical Chemistry" },
+            { id: 35, title: "ද්‍රාවිත ඔක්සිජන් (DO) මැනීම (Winkler Method)", cat: "Environmental Chem" },
+            { id: 36, title: "පෘෂ්ඨික ආතතිය මැනීම (Surface Tension)", cat: "Physical Chemistry" },
+            { id: 37, title: "දුස්ස්‍රාවිතාව මැනීම (Viscosity)", cat: "Physical Chemistry" },
+            { id: 38, title: "තුනී ස්තර ක්‍රොමැටෝග්‍රැෆිය (TLC)", cat: "Separation Tech" },
+            { id: 39, title: "තීරු ක්‍රොමැටෝග්‍රැෆිය (Column Chrom.)", cat: "Separation Tech" },
+            { id: 40, title: "නැවත ස්ඵටිකීකරණය (Recrystallization)", cat: "Purification Tech" },
+            { id: 41, title: "සරල උරුද්ධ පතනය (Simple Distillation)", cat: "Purification Tech" },
+            { id: 42, title: "ජල වාෂ්ප පතනය (Steam Distillation)", cat: "Purification Tech" }
+        ];
+
+        // Detailed Exam Theory Notes for Practicals 1 to 42
+        const theoryNotesData = {
+            1: "<b>A/L Theory Points:</b><br>• <b>මූලධර්මය:</b> 1/2 වන කාණ්ඩවල ලෝහ කැටායන Bunsen දැාලාවේ නොදීප්ත කලාපයට ඇතුළු කළ විට, තාප ශක්තිය අවශෝෂණය කර බාහිරතම ඉලෙක්ට්‍රෝන උත්තේජිත වේ. නැවත ආපසු පාදස්ථ මට්ටමට පතිත වීමේදී දෘශ්‍ය පරාසයේ තරංග ආයාම සහිත ආලෝකය විමෝචනය කරයි.<br>• <b>ප්ලැටිනම්/නයික්‍රෝම් කම්බිය:</b> සාන්ද්‍ර HCl මගින් පිරිසිදු කරනු ලබන්නේ වාෂ්පශීලී ක්ලෝරයිඩ සාදා ගැනීමටය (ලෝහ ක්ලෝරයිඩ පහසුවෙන් වාෂ්ප වී දැාලාවට වර්ණය ලබා දෙයි).<br>• <b>වර්ණ:</b> Na⁺ = දීප්තිමත් කහ, K⁺ = ලයිලැක් (කොබෝල්ට් වීදුරු හරහා රෝස/රතු), Ca²⁺ = ගඩොල් රතු, Ba²⁺ = ඇපල් කොළ, Sr²⁺ = තද රතු (Crimson red), Cu²⁺ = නිල්-කොළ.",
+            2: "<b>A/L Theory Points:</b><br>• <b>අම්ල-භෂ්ම අනුමාපන:</b> ප්‍රබල අම්ල-ප්‍රබල භෂ්ම අනුමාපනය සඳහා සමතුලිත ලක්ෂ්‍යයේ pH 7 වේ (දර්ශක: Phenolphthalein හෝ Methyl Orange).<br>• <b>දුබල අම්ල-ප්‍රබල භෂ්ම:</b> අන්ත ලක්ෂ්‍යයේ pH > 7 (දර්ශකය: Phenolphthalein - පරාසය 8.3 - 10.0, වර්ණ රහිත → රෝස).<br>• <b>ප්‍රබල අම්ල-දුබල භෂ්ම:</b> අන්ත ලක්ෂ්‍යයේ pH < 7 (දර්ශකය: Methyl Orange - පරාසය 3.1 - 4.4, රතු → කහ/තැඹිලි).<br>• <b>ප්‍රාථමික සම්මත ද්‍රාවණ:</b> Na₂CO₃, Oxalic acid (H₂C₂O₄·2H₂O). NaOH/HCl ප්‍රාථමික සම්මත නොවේ (NaOH වාතයේ CO₂ හා ජලය අවශෝෂණය කරයි, HCl වාෂ්පශීලී වේ).",
+            3: "<b>A/L Theory Points:</b><br>• <b>KMnO₄ රෙඩොක්ස් අනුමාපනය:</b> KMnO₄ යනු ස්වයං දර්ශකයකි (Self-indicator). අන්ත ලක්ෂ්‍යයේදී ස්ථිර ලා රෝස පැහැය (Pale Pink) ලැබේ.<br>• <b>අම්ල මාධ්‍යය:</b> තනුක H₂SO₄ පමණක් භාවිත කරයි. HCl භාවිත කළ නොහැක (KMnO₄ මගින් Cl⁻ → Cl₂ බවට ඔක්සිකරණය වේ). HNO₃ භාවිත කළ නොහැක (එය ඔක්සිකාරකයකි).<br>• <b>අර්ධ ප්‍රතික්‍රියාව:</b> MnO₄⁻ + 8H⁺ + 5e⁻ → Mn²⁺ + 4H₂O (Mn violet/purple → Mn²⁺ colorless). Fe²⁺ → Fe³⁺ + e⁻.",
+            4: "<b>A/L Theory Points:</b><br>• <b>අයඩොමිතික අනුමාපනය:</b> I₂ + 2S₂O₃²⁻ → 2I⁻ + S₄O₆²⁻ (තයෝසල්ෆේට් ඔක්සිකරණය වී ටෙට්‍රාතයෝනේට් සාදයි).<br>• <b>පිෂ්ඨය දර්ශකය (Starch):</b> අනුමාපනය ආරම්භයේදීම එකතු නොකරයි! I₂ සාන්ද්‍රණය අඩුවී ද්‍රාවණය ලා කහ පැහැ වූ පසු එකතු කරයි. (මුලදීම එකතු කළහොත් පිෂ්ඨය-අයඩින් සංකීර්ණය ස්ථායී වී අන්ත ලක්ෂ්‍යය ප්‍රමාද වේ).<br>• <b>අන්ත ලක්ෂ්‍යය:</b> තද නිල්/කළු පැහැය සම්පූර්ණයෙන්ම නැති වී වර්ණ රහිත වීම.",
+            5: "<b>A/L Theory Points:</b><br>• <b>ලැසේන් පරික්ෂාව (Lassaigne's Test):</b> කාබනික සංයෝගවල N, S, සහ හලෝජන (Cl, Br, I) හඳුනා ගැනීමට Na ලෝහය සමග තදින් රත් කර සෝඩියම් නිස්සාරණය (Sodium Fusion Extract) සාදයි.<br>• <b>N සඳහා:</b> FeSO₄ + NaOH එකතු කර රත් කර, FeCl₃ + HCl එකතු කළ විට ප්‍රුසියන් නිල් (Prussian Blue) පැහැය/අවක්ෂේපය ලැබේ. [Fe₄[Fe(CN)₆]₃].<br>• <b>S සඳහා:</b> සෝඩියම් නයිට්‍රොප්‍රුසයිඩ් එකතු කළ විට දම් (Violet) පැහැය ලැබේ.<br>• <b>හලෝජන සඳහා:</b> HNO₃ සමග තම්බා, AgNO₃ එකතු කරයි. (Cl⁻ = සුදු, Br⁻ = ලා කහ, I⁻ = තද කහ අවක්ෂේප).",
+            6: "<b>A/L Theory Points:</b><br>• <b>අසංතෘප්තතාව (C=C / C≡C):</b> Br₂/CCl₄ (තැඹිලි-රතු පැහැය විවර්ණ වේ) සහ සිසිල් තනුක KMnO₄/H⁺ (දම් පැහැය විවර්ණ වී MnO₂ තညට හුරු තැඹිලි/දුඹුරු අවක්ෂේපය සාදයි).<br>• <b>-OH (ඇල්කොහොල්):</b> Na ලෝහය දැමූ විට H₂ වායු බුබුළු පිටවීම.<br>• <b>-COOH (කාබොක්සිලික්):</b> NaHCO₃ ද්‍රාවණය දැමූ විට CO₂ වායුව පිටවීම (සීඝ්‍ර බුබුළනය).<br>• <b>ෆීනෝල්:</b> උදාසීන FeCl₃ සමග තද දම්/තද නිල් සංකීර්ණ වර්ණයක් ලබා දීම.",
+            7: "<b>A/L Theory Points:</b><br>• <b>උදාසීනීකරණ එන්ටැල්පිය (ΔH):</b> ප්‍රබල අම්ල 1 mol ප්‍රබල භෂ්ම 1 mol මගින් උදාසීන වීමේදී නිදහස් වන තාපය නියතව -57.1 kJ mol⁻¹ වේ.<br>• <b>හේතුව:</b> ශුද්ධ ප්‍රතික්‍රියාව H⁺(aq) + OH⁻(aq) → H₂O(l) වන බැවිනි.<br>• <b>දුබල අම්ල/භෂ්ම:</b> ΔH හි අගය -57.1 kJ mol⁻¹ ට වඩා අඩුවේ (අඩු තාප ප්‍රමාණයක් පිටවේ). මන්ද දුබල අම්ලය/භෂ්මය පූර්ණ ලෙස අයනීකරණය වීමට තාපයෙන් කොටසක් වැය වන බැවිනි.<br>• <b>ගණනය:</b> Q = msΔT (m = ස්කන්ධය, s = විශිෂ්ට තාප ධාරිතාව 4.2 J g⁻¹ K⁻¹).",
+            8: "<b>A/L Theory Points:</b><br>• <b>සල්ෆර් ඔරලෝසු ප්‍රතික්‍රියාව:</b> Na₂S₂O₃(aq) + 2HCl(aq) → 2NaCl(aq) + SO₂(g) + S(s) + H₂O(l).<br>• <b>මිනුම් ක්‍රමය:</b> ජනිත වන කොලොයිඩල් සල්ෆර් (S) නිසා ද්‍රාවණය බොඳ වී යට ඇති 'X' ලකුණ නොපෙනී යාමට ගතවන කාලය (t) මැනීම.<br>• <b>ශීඝ්‍රතාව (R):</b> R ∝ 1/t වේ.<br>• <b>පරාමිතීන්:</b> Na₂S₂O₃ සාන්ද්‍රණය වැඩි වන විට හෝ උෂ්ණත්වය වැඩි වන විට 't' අඩුවේ (ශීඝ්‍රතාව වැඩි වේ).",
+            9: "<b>A/L Theory Points:</b><br>• <b>බොයිල්ගේ නියමය (Boyle's Law):</b> නියත උෂ්ණත්වයේදී (T) නියත වායු සමූහයක පීඩනය (P), පරිමාවට (V) ප්‍රතිලෝමව සමානුපාතික වේ. (P ∝ 1/V ⇒ PV = K).<br>• <b>චාල්ස්ගේ නියමය (Charles's Law):</b> නියත පීඩනයේදී පරිමාව, කෙල්වින් උෂ්ණත්වයට සෘජුව සමානුපාතික වේ (V ∝ T).<br>• <b>ආදර්ශ වායු සමීකරණය:</b> PV = nRT (R = 8.314 J K⁻¹ mol⁻¹). සාමාන්‍ය උෂ්ණත්ව හා පීඩනයේදී (STP: 0°C, 1 atm) මෝලර් පරිමාව 22.4 dm³ mol⁻¹ වේ.",
+            10: "<b>A/L Theory Points:</b><br>• <b>සමතුලිතතාව:</b> Fe³⁺(aq) [කහ/දුඹුරු] + SCN⁻(aq) [වර්ණ රහිත] ⇌ [Fe(SCN)]²⁺(aq) [ලේ රතු / Blood Red].<br>• <b>ලෙ චැටලියර් නියමය:</b><br>  - Fe³⁺ (FeCl₃) හෝ SCN⁻ (KSCN) එකතු කළ විට → ඉදිරි ප්‍රතික්‍රියාව උත්තේජනය වී ලේ රතු පැහැය තීව්‍ර වේ.<br>  - F⁻ (NaF) හෝ Hg²⁺ එකතු කළ විට → Fe³⁺ සමග සංකීර්ණ සාදා Fe³⁺ ඉවත් කරයි/SCN⁻ ඉවත් කරයි, ආපසු ප්‍රතික්‍රියාව වී රතු පැහැය අඩු වේ.<br>• Kc වෙනස් වන්නේ **උෂ්ණත්වය වෙනස් කළ විට පමණි**.",
+            11: "<b>A/L Theory Points:</b><br>• <b>කැටායන කාණ්ඩ වෙන් කිරීම:</b><br>  - I කාණ්ඩය (Ag⁺, Pb²⁺, Hg₂²⁺): තනුක HCl සමග සුදු අවක්ෂේප.<br>  - II කාණ්ඩය (Cu²⁺, Bi³⁺, Cd²⁺, Pb²⁺): තනුක HCl/H₂S සමග සල්ෆයිඩ් අවක්ෂේප (CuS - කළු).<br>  - III A කාණ්ඩය (Fe³⁺, Al³⁺, Cr³⁺): NH₄Cl/NH₄OH සමග හයිඩ්‍රොක්සයිඩ් (Fe(OH)₃ - තද දුඹුරු, Al(OH)₃ - ජෙලටින් සුදු).<br>  - III B කාණ්ඩය (Zn²⁺, Mn²⁺, Ni²⁺, Co²⁺): H₂S/NH₄OH සමග සල්ෆයිඩ්.<br>  - IV කාණ්ඩය (Ba²⁺, Sr²⁺, Ca²⁺): (NH₄)₂CO₃ සමග කාබනේට (සුදු අවක්ෂේප).",
+            12: "<b>A/L Theory Points:</b><br>• <b>pH සහ දර්ශක:</b> pH = -log₁₀[H⁺]. pH + pOH = 14 (25°C දී).<br>• <b>දර්ශක න්‍යාය:</b> අම්ල-භෂ්ම දර්ශක යනු දුබල කාබනික අම්ල (HIn) හෝ දුබල කාබනික භෂ්ම වේ. HIn(aq) ⇌ H⁺(aq) + In⁻(aq). HIn සහ In⁻ එකිනෙකට වෙනස් වර්ණ පෙන්වයි.<br>• <b>වර්ණ සංක්‍රාන්ති පරාසය:</b> pH = pKa ± 1 වේ. (Phenolphthalein: pH 8.3 - 10.0, Methyl Orange: pH 3.1 - 4.4).",
+            13: "<b>A/L Theory Points:</b><br>• <b>බෆර් ද්‍රාවණ:</b> සුළු වශයෙන් අම්ල හෝ භෂ්ම එකතු කිරීමේදී pH වෙනස්වීම ප්‍රතිරෝධය කරන ද්‍රාවණ වේ.<br>• <b>ආම්ලික බෆර්:</b> දුබල අම්ලයක් + එහි ප්‍රබල ලුණු (උදා: CH₃COOH + CH₃COONa). pH = pKa + log([ලුණු]/[අම්ලය]).<br>• <b>භාෂ්මික බෆර්:</b> දුබල භෂ්මයක් + එහි ප්‍රබල ලුණු (උදා: NH₄OH + NH₄Cl). pOH = pKb + log([ලුණු]/[භෂ්මය]).<br>• <b>බෆර් ධාරිතාව:</b> [ලුණු] = [අම්ලය] වන විට බෆර් ධාරිතාව උපරිම වේ (pH = pKa).",
+            14: "<b>A/L Theory Points:</b><br>• <b>ද්‍රාව්‍යතා ගුණිතය (Ksp):</b> අලපව ද්‍රාව්‍ය ලවණයක සංතෘප්ත ද්‍රාවණයක අයනික සාන්ද්‍රණවල ගුණිතය නියත උෂ්ණත්වයේදී නියතයකි. (උදා: CaF₂ ⇌ Ca²⁺ + 2F⁻ නම් Ksp = [Ca²⁺][F⁻]²).<br>• <b>අවක්ෂේපණ කොන්දේසිය:</b><br>  - අයනික ගුණිතය (IP) < Ksp ⇒ අසංතෘප්තයි (අවක්ෂේප නොවෙයි).<br>  - IP = Ksp ⇒ සංතෘප්තයි (සමතුලිතයි).<br>  - IP > Ksp ⇒ පූර්ව සංතෘප්තයි (අවක්ෂේපණය වේ).<br>• <b>පොදු අයන බලපෑම:</b> පොදු අයනයක් පැවතීමෙන් ද්‍රාව්‍යතාව අඩුවේ.",
+            15: "<b>A/L Theory Points:</b><br>• <b>නර්න්ස්ට් බෙදීම් නියමය (Partition/Distribution Coefficient):</b> එකිනෙක මිශ්‍ර නොවන ද්‍රාවක දෙකක් අතර එකම අණුක තත්ත්වයේ පවතින විලීනයක් බෙදී යාමේදී සාන්ද්‍රණ අනුපාතය නියත උෂ්ණත්වයේදී නියත වේ.<br>• <b>Kd = C_organic / C_aqueous</b>.<br>• <b>නිස්සාරණය (Extraction):</b> එකවර විශාල ද්‍රාවක පරිමාවකින් නිස්සාරණය කරනවාට වඩා, කුඩා පරිමාවලින් කිහිප වරක් (Multiple Extractions) නිස්සාරණය කිරීම ඉතා කාර්යක්ෂම වේ.",
+            16: "<b>A/L Theory Points:</b><br>• <b>රවුල් නියමය (Raoult's Law):</b> නියත උෂ්ණත්වයේදී වාෂ්පශීලී සංරචකයක අර්ධ වාෂ්ප පීඩනය (P_A), සංරචකයේ ශුද්ධ වාෂ්ප පීඩනය (P°_A) සහ ද්‍රාවණයේ එහි මෝලික භාගයේ (X_A) ගුණිතයට සමාන වේ. (P_A = P°_A × X_A).<br>• <b>පූර්ණ පීඩනය:</b> P_total = P_A + P_B.<br>• <b>ධන විගමන (Positive Deviations):</b> A-B ආකර්ෂණ < A-A, B-B ආකර්ෂණ (උදා: C₂H₅OH + Cyclohexane).<br>• <b>සෘණ විගමන (Negative Deviations):</b> A-B ආකර්ෂණ > A-A, B-B ආකර්ෂණ (උදා: Acetone + CHCl₃ - H-බන්ධන සෑදේ).",
+            17: "<b>A/L Theory Points:</b><br>• <b>සහබන්ධිත ගුණ (Colligative Properties):</b> ද්‍රාවණයක පවතින විලීන් අංශු ගණන මත පමණක් පදනම් වන, අංශු වර්ගය මත පදනම් නොවන ගුණ වේ.<br>• <b>හිමාංක අවනමනය (ΔTf):</b> ΔTf = Kf × m (Kf = මෝලල් හිමාංක අවනමන නියතය, m = මොලැලිටිය = mol/kg).<br>• <b>A/L යෙදීම:</b> අවනමනය මැනීමෙන් අවිලීන අවාෂ්පශීලී විලීනයක අණුක ස්කන්ධය (Molar Mass) සෙවීම.",
+            18: "<b>A/L Theory Points:</b><br>• <b>ගැල්වානි කෝෂ (Galvanic/Voltaic Cells):</b> ස්වයංසිද්ධ රෙඩොක්ස් ප්‍රතික්‍රියා මගින් රසායනික ශක්තිය විද්‍යුත් ශක්තිය බවට හරවයි.<br>• <b>ඇනෝඩය (Anode):</b> ඔක්සිකරණය සිදුවේ (සෘණ අග්‍රය - Negative terminal).<br>• <b>කැතෝඩය (Cathode):</b> ඔක්සිහරණය සිදුවේ (ධන අග්‍රය - Positive terminal).<br>• <b>ලුණු පාලම (Salt Bridge):</b> KCl / KNO₃ / NH₄NO₃ ඇගාර්-ඇගාර් ජෙල් සමග යොදාගනී. කෝෂයේ විද්‍යුත් උදාසීනතාව පවත්වා ගනී.<br>• <b>E°_cell = E°_cathode - E°_anode</b>.",
+            19: "<b>A/L Theory Points:</b><br>• <b>විද්‍යුත් විච්ඡේදනය:</b> අස්වයංසිද්ධ රසායනික ප්‍රතික්‍රියා සිදු කිරීමට බාහිරින් විද්‍යුත් ශක්තිය ලබා දේ.<br>• <b>ජලීය CuSO₄ (තඹ ඉලෙක්ට්‍රෝඩ):</b> ඇනෝඩය දිය වේ (Cu → Cu²⁺ + 2e⁻), කැතෝඩයේ Cu තැන්පත් වේ (Cu²⁺ + 2e⁻ → Cu).<br>• <b>ජලීය NaCl (Inert ඉලෙක්ට්‍රෝඩ):</b> කැතෝඩයේ H₂ වායුව (2H₂O + 2e⁻ → H₂ + 2OH⁻), ඇනෝඩයේ Cl₂ වායුව (2Cl⁻ → Cl₂ + 2e⁻).",
+            20: "<b>A/L Theory Points:</b><br>• <b>ලූකස් පරීක්ෂාව (Lucas Test):</b> සාන්ද්‍ර HCl + නිර්ජලී ZnCl₂ භාවිතයෙන් Primary, Secondary, Tertiary ඇල්කොහොල් වෙනස් කර හඳුනා ගනී.<br>• <b>3° ඇල්කොහොල්:</b> ක්ෂණිකව තෙල් සහිත ස්තරයක් / තද බොඳවීමක් (Turbidity) ලබා දේ.<br>• <b>2° ඇල්කොහොල්:</b> විනාඩි 5-10 කින් ලා බොඳවීමක් ලබා දේ.<br>• <b>1° ඇල්කොහොල්:</b> කාමර උෂ්ණත්වයේදී බොඳවීමක් නොපෙන්වයි (රත් කිරීම අවශ්‍යයි).<br>• <b>යාන්ත්‍රණය:</b> S_N1 ප්‍රතික්‍රියාවකි (කාබෝකැටායන ස්ථායීතාවය: 3° > 2° > 1°).",
+            21: "<b>A/L Theory Points:</b><br>• <b>ෆේලිං පරීක්ෂාව (Fehling's Test):</b> ඇල්ඩියහයිඩ හා කීටෝන වෙන් කර හඳුනා ගැනීමට යොදා ගනී.<br>• <b>ප්‍රතික්‍රියකය:</b> Fehling A (CuSO₄) + Fehling B (Sodium potassium tartrate + NaOH).<br>• <b>නිරීක්ෂණය:</b> ඇල්ඩියහයිඩ මගින් Cu²⁺ (නිල්) → Cu₂O (රතු/ගඩොල් රතු අවක්ෂේපය) බවට ඔක්සිහරණය කරයි.<br>• <b>ඇලිෆැටික ඇල්ඩියහයිඩ:</b> ධන ප්‍රතිචාර දැක්වූවද, **බෙන්සැල්ඩියහයිඩ (Aromatic Aldehydes) ෆේලිං සමග ධන ප්‍රතිචාර නොදක්වයි!**",
+            22: "<b>A/L Theory Points:</b><br>• <b>එස්ටරීකරණය (Esterification):</b> R-COOH + R'-OH ⇌ R-COO-R' + H₂O (සාන්ද්‍ර H₂SO₄ උත්ප්‍රේරක ලෙස යොදා ගනී).<br>• <b>නිරීක්ෂණය:</b> සුගන්ධවත් මී පැනි / පලතුරු සුවඳක් (Fruity smell) හමයි.<br>• <b>H₂SO₄ හි කාර්යභාරය:</b> 1. H⁺ උත්ප්‍රේරකය ලබා දීම. 2. ජලශෝෂකයක් ලෙස ක්‍රියා කර ජලය ඉවත් කිරීමෙන් සමතුලිතය දකුණට නෙරපීම (ඵලදාව වැඩි කිරීම).",
+            23: "<b>A/L Theory Points:</b><br>• <b>හින්ස්බර්ග් පරීක්ෂාව (Hinsberg Test):</b> Benzene sulfonyl chloride (Ph-SO₂Cl) + NaOH භාවිතයෙන් 1°, 2°, 3° ඇමීන් වෙන් කිරීම.<br>• <b>1° ඇමීන්:</b> ප්‍රතික්‍රියා කර සාදන සුල්ෆොනමයිඩය NaOH හි දිය වේ (ආම්ලික H පවතින බැවින්).<br>• <b>2° ඇමීන්:</b> ප්‍රතික්‍රියා කර සාදන සුල්ෆොනමයිඩය NaOH හි දිය නොවේ (ආම්ලික H නැත). සුදු අවක්ෂේපයක් ලෙස පවතී.<br>• <b>3° ඇමීන්:</b> ප්‍රතික්‍රියා නොකරයි (තෙල් ස්තරයක් ලෙස පවතී).",
+            24: "<b>A/L Theory Points:</b><br>• <b>ඇස්පිරින් සංස්ලේෂණය:</b> සැලිසිලික් අම්ලය (Salicylic acid) + එතිනොයික් ඇන්හයිඩ්‍රයිඩ් (Acetic anhydride) → ඇසිටයිල් සැලිසිලික් අම්ලය (Aspirin) + CH₃COOH.<br>• <b>උත්ප්‍රේරකය:</b> සාන්ද්‍ර H₂SO₄ හෝ H₃PO₄.<br>• <b>පිරිසිදු කිරීම:</b> නැවත ස්ඵටිකීකරණය (Recrystallization) භාවිතයෙන් පිරිසිදු කර ගනී.<br>• <b>පිරිසිදුතාව පරීක්ෂාව:</b> FeCl₃ යෙදූ විට දම් පැහැයක් නොලැබේ නම් සැලිසිලික් අම්ලය (ෆීනෝලීය -OH) ඉතිරි වී නැත.",
+            25: "<b>A/L Theory Points:</b><br>• <b>සබන්කරණය (Saponification):</b> ට්‍රයිග්ලිසරයිඩ (තෙල්/මේද) + NaOH → ග්ලිසරෝල් + සබන් (Sodium salts of fatty acids).<br>• <b>ලුණු දැමීම (Salting Out):</b> සබන් මිශ්‍රණයට සාන්ද්‍ර NaCl එකතු කිරීමේදී Na⁺ අයන සාන්ද්‍රණය වැඩි වී සබන්වල ද්‍රාව්‍යතා ගුණිතය ඉක්මවා සබන් අවක්ෂේප වේ (පා වේ).<br>• <b>සබන් අණුව:</b> ජලප්‍රිය හිස (Hydrophilic head: -COO⁻Na⁺) සහ ජලභීතික වලිගය (Hydrophobic tail: දීර්ඝ හයිඩ්‍රෝකාබන් දාමය).",
+            26: "<b>A/L Theory Points:</b><br>• <b>d-ගොනුවේ සංකීර්ණ අයන වර්ණ:</b> d-කාක්ෂික විභේදනය (d-d සංක්‍රාන්ති) නිසා වර්ණ පෙන්වයි.<br>• <b>A/L ප්‍රධාන සංකීර්ණ වර්ණ:</b><br>  - [Cu(H₂O)₆]²⁺ = ලා නිල් (Pale blue)<br>  - [Cu(NH₃)₄]²⁺ = තද නිල් (Deep/Royal blue)<br>  - [Fe(H₂O)₆]³⁺ = කහ/තැඹිලි-දුඹුරු<br>  - [Fe(H₂O)₆]²⁺ = ලා කොළ (Pale green)<br>  - [Cr(H₂O)₆]³⁺ = දම්/කොළ<br>  - [CrO₄]²⁻ = කහ, [Cr₂O₇]²⁻ = තැඹිලි.",
+            27: "<b>A/L Theory Points:</b><br>• <b>K₂Cr₂O₇ ඔක්සිකාරක ගුණය:</b> ආම්ලික මාධ්‍යයේදී ප්‍රබල ඔක්සිකාරකයකි. Cr₂O₇²⁻ (තැඹිලි) + 14H⁺ + 6e⁻ → 2Cr³⁺ (කොළ) + 7H₂O.<br>• <b>A/L නිරීක්ෂණ:</b><br>  - H₂S(g) යැවූ විට → Cr³⁺ (කොළ ද්‍රාවණය) + S (කහ පැහැති කැළඹිලි සල්ෆර් අවක්ෂේපය).<br>  - SO₂(g) යැවූ විට → Cr³⁺ (කොළ ද්‍රාවණය) + SO₄²⁻.<br>  - Primary/Secondary ඇල්කොහොල් සමග රත් කළ විට → තැඹිලි පැහැය කොළ පැහැයට හැරේ.",
+            28: "<b>A/L Theory Points:</b><br>• <b>හලෝජනවල ඔක්සිකාරක බලය:</b> F₂ > Cl₂ > Br₂ > I₂ (කාණ්ඩයේ පහළට යන විට අඩු වේ).<br>• <b>විස්ථාපන ප්‍රතික්‍රියා:</b><br>  - Cl₂ + 2Br⁻ → 2Cl⁻ + Br₂ (තැඹිලි/දුඹුරු - CCl₄ ස්තරයට එක් වූ විට තැඹිලි).<br>  - Cl₂ + 2I⁻ → 2Cl⁻ + I₂ (CCl₄ ස්තරයට එක් වූ විට දම් පැහැය).<br>  - Br₂ + 2I⁻ → 2Br⁻ + I₂ (CCl₄ ස්තරයේ දම් පැහැය).<br>  - **I₂ මගින් Cl⁻ හෝ Br⁻ විස්ථාපනය කළ නොහැක!**",
+            29: "<b>A/L Theory Points:</b><br>• <b>ලැබගැනීම:</b> NH₄Cl(aq) + NaNO₂(aq) →[Heat] NH₄NO₂(aq) + NaCl(aq). NH₄NO₂(aq) →[Heat] N₂(g) + 2H₂O(l).<br>• <b>සැලකිලිමත් විය යුතු කරුණු:</b> ඝන NH₄NO₂ සෘජුව රත් නොකරයි! (පිපිරුම් සහගත ලෙස වියෝජනය වන බැවින්, ද්‍රාවණ මිශ්‍ර කර රත් කරයි).<br>• <b>එකතු කිරීම:</b> ජලයේ අල්ප ලෙස ද්‍රාව්‍ය බැවින් **ජලයේ යටිකුරු විස්ථාපනයෙන්** එකතු කර ගනී.",
+            30: "<b>A/L Theory Points:</b><br>• <b>ලැබගැනීම:</b> 2KClO₃(s) →[MnO₂ / Heat] 2KCl(s) + 3O₂(g) හෝ 2H₂O₂(aq) →[MnO₂] 2H₂O(l) + O₂(g).<br>• <b>උත්ප්‍රේරකය:</b> MnO₂ (කළු පැහැති කුඩක් ලෙස ක්‍රියා කරයි, ප්‍රතික්‍රියා උෂ්ණත්වය පහළ හෙලයි).<br>• <b>පරීක්ෂාව:</b> දැල්වෙන හුලක් ඇතුළු කළ විට නැවත දීප්තිමත්ව දැල්වේ.<br>• <b>එකතු කිරීම:</b> ජලයේ අල්ප ලෙස ද්‍රාව්‍ය බැවින් ජලයේ යටිකුරු විස්ථාපනයෙන් එකතු කරයි.",
+            31: "<b>A/L Theory Points:</b><br>• <b>ලැබගැනීම:</b> MnO₂(s) + 4HCl(conc) →[Heat] MnCl₂(aq) + Cl₂(g) + 2H₂O(l) හෝ 2KMnO₄ + 16HCl → 2KCl + 2MnCl₂ + 5Cl₂ + 8H₂O.<br>• <b>පිරිසිදු කිරීම:</b> HCl වාෂ්ප ඉවත් කිරීමට **ජලය** හරහා ද, ජල වාෂ්ප ඉවත් කිරීමට **සාන්ද්‍ර H₂SO₄** හරහා ද යවනු ලැබේ.<br>• <b>එකතු කිරීම:</b> ජලයේ ද්‍රාව්‍ය වන අතර වාතයට වඩා ඝනකමින් වැඩි නිසා **වාතයේ උඩුකුරු විස්ථාපනයෙන්** එකතු කරයි. (තද කහ-කොළ පැහැති, සැර අහිතකර වායුවකි).",
+            32: "<b>A/L Theory Points:</b><br>• <b>ලැබගැනීම:</b> 2NH₄Cl(s) + Ca(OH)₂(s) →[Heat] CaCl₂(s) + 2H₂O(l) + 2NH₃(g).<br>• <b>වියළීම:</b> NH₃ වියළීමට **Quicklime (CaO)** පමණක් යොදා ගනී! (සාන්ද්‍ර H₂SO₄ හෝ P₂O₅ හෝ CaCl₂ යොදා ගත නොහැක - ඒවා NH₃ සමග ප්‍රතික්‍රියා කරයි).<br>• <b>එකතු කිරීම:</b> ජලයේ අධික ලෙස ද්‍රාව්‍ය වන අතර වාතයට වඩා සැහැල්ලු බැවින් **වාතයේ යටිකුරු විස්ථාපනයෙන්** එකතු කරයි.<br>• <b>පරීක්ෂාව:</b> සාන්ද්‍ර HCl බොරවන ලද වීදුරු කූරක් ඇල්ලූ විට NH₄Cl සුදු දුම් සාදයි.",
+            33: "<b>A/L Theory Points:</b><br>• <b>ලැබගැනීම:</b> Cu(s) + 2H₂SO₄(conc) →[Heat] CuSO₄(aq) + SO₂(g) + 2H₂O(l) හෝ Na₂SO₃ + 2HCl → 2NaCl + SO₂ + H₂O.<br>• <b>ලක්ෂණ:</b> සැර ගන්ධයක් සහිත වර්ණ රහිත වායුවකි.<br>• <b>හඳුනාගැනීම:</b> ආම්ලික K₂Cr₂O₇ පෙඟවූ පෙරහන් කඩදාසියක් කොළ පැහැයට හරවයි (Cr₂O₇²⁻ → Cr³⁺). ආම්ලික KMnO₄ දම් පැහැය විවර්ණ කරයි.",
+            34: "<b>A/L Theory Points:</b><br>• <b>තදතාවය (Hardness):</b> Ca²⁺ සහ Mg²⁺ අයන මගින් ඇතිවේ.<br>• <b>EDTA අනුමාපනය:</b> EDTA (Disodium salt) මගින් Ca²⁺ සහ Mg²⁺ සමග 1:1 ස්ථායී සංකීර්ණ සාදයි.<br>• <b>දර්ශකය:</b> Erichrome Black T (EBT).<br>• <b>pH මාධ්‍යය:</b> pH 10 හි පවත්වා ගැනීමට NH₃/NH₄Cl බෆර් ද්‍රාවණයක් එකතු කරයි.<br>• <b>වර්ණ වෙනස:</b> වයින් රතු (Wine red - EBT-Metal complex) → පැහැදිලි නිල් (Clear Blue - Uncomplexed EBT).",
+            35: "<b>A/L Theory Points:</b><br>• <b>වින්ක්ලර් ක්‍රමය (Winkler Method):</b> ජලයේ ද්‍රාවිත O₂ (DO) ප්‍රමාණය මැනීම.<br>• <b>ප්‍රතික්‍රියා පියවර:</b><br>  1. Mn²⁺ + 2OH⁻ → Mn(OH)₂ (සුදු අවක්ෂේපය).<br>  2. 2Mn(OH)₂ + O₂ → 2MnO(OH)₂ (තඹ පැහැ/දුඹුරු අවක්ෂේපය - O₂ ඇති බව තහවුරු කරයි).<br>  3. KI/H₂SO₄ එකතු කළ විට Mn⁴⁺ මගින් I⁻ → I₂ බවට ඔක්සිකරණය කරයි.<br>  4. නිදහස් වූ I₂ ප්‍රමාණය Na₂S₂O₃ සමග පිෂ්ඨය දර්ශකය යොදා අනුමාපනය කරයි.<br>• **O₂ 1 mol ≡ I₂ 2 mol ≡ S₂O₃²⁻ 4 mol**.",
+            36: "<b>A/L Theory Points:</b><br>• <b>පෘෂ්ඨික ආතතිය (γ):</b> ද්‍රවයක පෘෂ්ඨික වර්ගඵලය අවම කර ගැනීමට පෘෂ්ඨික අණු අභ්‍යන්තරයට ඇදී පැවතීමේ ප්‍රවණතාවය.<br>• <b>කේශික උන්නති ක්‍රමය:</b> γ = (r h ρ g) / (2 cosθ) (r = කේශික බටයේ අරය, h = ද්‍රව කඳේ උස, ρ = ඝනත්වය, θ = ස්පර්ශ කෝණය - ජලය/වීදුරු සඳහා θ = 0, cosθ = 1).<br>• <b>උෂ්ණත්ව බලපෑම:</b> උෂ්ණත්වය වැඩි වන විට අන්තර් අණුක ආකර්ෂණ බල ලිහිල් වන බැවින් පෘෂ්ඨික ආතතිය අඩුවේ.",
+            37: "<b>A/L Theory Points:</b><br>• <b>දුස්ස්‍රාවිතාව (Viscosity - η):</b> ද්‍රවයක ගැලීමට දක්වන ප්‍රවාහ ප්‍රතිරෝධය.<br>• <b>ඔස්ට්වෝල්ඩ් දුස්ස්‍රාවීමානය (Ostwald Viscometer):</b> නියත ද්‍රව පරිමාවක් සලකුණු දෙක අතර ගලා යාමට ගතවන කාලය (t) මැනීම.<br>• <b>සූත්‍රය:</b> η₁ / η₂ = (ρ₁ × t₁) / (ρ₂ × t₂).<br>• **අන්තර් අණුක H-බන්ධන වැඩි ද්‍රවවල (උදා: ග්ලිසරෝල්) දුස්ස්‍රාවිතාව ඉතා ඉහළයි.** උෂ්ණත්වය වැඩි වන විට දුස්ස්‍රාවිතාව අඩුවේ.",
+            38: "<b>A/L Theory Points:</b><br>• <b>TLC (Thin Layer Chromatography):</b><br>  - <b>නිශ්චල කලාපය (Stationary Phase):</b> සිලිකා ජෙල් (Silica gel - highly polar) හෝ ඇලුමිනා.<br>  - <b>ජංගම කලාපය (Mobile Phase):</b> කාබනික ද්‍රාවක මිශ්‍රණයක්.<br>• <b>රඳවා ගැනීමේ සාධකය (Retention Factor):</b> Rf = (ලපය ගමන් කළ දුර) / (ද්‍රාවක පෙරමුණ ගමන් කළ දුර).<br>• <b>ධ්‍රැවීයතාව:</b> ධ්‍රැවීයතාව වැඩි සංයෝග නිශ්චල කලාපයට (Silica) තදින් ඇලී පවතින බැවින් Rf අගය අඩුවේ. ධ්‍රැවීයතාව අඩු සංයෝග වැඩි දුරක් ගමන් කර විශාල Rf අගයක් ලබා දේ.",
+            39: "<b>A/L Theory Points:</b><br>• <b>තීරු ක්‍රොමැටෝග්‍රැෆිය:</b> සංයෝග විශාල ප්‍රමාණයක් වෙන් කර පිරිසිදු කර ගැනීමට (Preparative scale) යොදා ගනී.<br>• <b>මූලධර්මය:</b> ඇලුමිනා/සිලිකා බීකර් නළයක පුරවා, මිශ්‍රණය ඉහළින් දමා, ද්‍රාවක (Eluent) පහළට ගැලීමට සලස්වයි.<br>• <b>වෙන් වීම:</b> ධ්‍රැවීයතාව අඩු සංයෝග වේගයෙන් පහළට බැස ප්‍රථමයෙන් පිටතට (Elute) එකතු වේ. ධ්‍රැවීයතාව වැඩි සංයෝග තීරුවේ ඉහළ රැඳේ.",
+            40: "<b>A/L Theory Points:</b><br>• <b>නැවත ස්ඵටිකීකරණය:</b> අශුද්ධ ඝන සංයෝග පිරිසිදු කිරීමේ ප්‍රධාන තාක්ෂණය.<br>• <b>සුදුසු ද්‍රාවකයක් තේරීමේ කොන්දේසි:</b><br>  1. කාමර උෂ්ණත්වයේදී/ශීතලව අදාළ ඝනය ද්‍රාව්‍ය නොවිය යුතුය (හෝ අල්ප ලෙස).<br>  2. ද්‍රාවකයේ තාපාංකය අසලදී (රත් කළ විට) ඝනය සම්පූර්ණයෙන්ම ද්‍රාව්‍ය විය යුතුය.<br>  3. අශුද්ධතාවල ද්‍රාව්‍යතාව ඉතා ඉහළ හෝ ඉතා පහළ විය යුතුය.<br>• hot filtration මගින් අවිලීන අශුද්ධ ද, crystallization & cold filtration මගින් ස්ඵටික වෙන් කරයි.",
+            41: "<b>A/L Theory Points:</b><br>• <b>සරල උරුද්ධ පතනය (Simple Distillation):</b> තාපාංක අතර විශාල වෙනසක් (> 25°C - 50°C) ඇති මිශ්‍ර නොවන හෝ මිශ්‍ර වන ද්‍රව වෙන් කිරීමට සහ අවාෂ්පශීලී අශුද්ධතාවලින් ද්‍රවයක් වෙන් කිරීමට යොදා ගනී.<br>• <b>කොන්දේසි:</b> තාපාංකය අඩු (වාෂ්පශීලීතාව වැඩි) සංරචකය ප්‍රථමයෙන් වාෂ්ප වී සංනීපකය (Liebig condenser) හරහා සිසිල් වී ප්‍රථමයෙන් එකතු වේ.<br>• **සංනීපකයට ජලය ඇතුළු කරන්නේ පහළින් වන අතර පිටවන්නේ ඉහළිනි** (පූර්ණ සිසිලනය සහ වායු බුබුළු වැළැක්වීමට).",
+            42: "<b>A/L Theory Points:</b><br>• <b>ජල වාෂ්ප පතනය (Steam Distillation):</b> ජලයේ අද්‍රාව්‍ය, නමුත් ජල වාෂ්ප සමග වාෂ්ප වන, තාපාංකයේදී වියෝජනය වන ඉහළ තාපාංක සහිත කාබනික සංයෝග (උදා: කුරුඳු තෙල් - Cinnamaldehyde, ඇනිලීන්) පිරිසිදු කිරීමට.<br>• <b>මූලධර්මය:</b> මිශ්‍රණයේ මුළු වාෂ්ප පීඩනය P_total = P_water + P_organic වේ.<br>• <b>වාසිය:</b> P_total = P_atm වන විට මිශ්‍රණය තැම්බේ. එම නිසා **කාබනික සංයෝගයේ තාපාංකයට වඩා අඩු උෂ්ණත්වයකදී (< 100°C)** සංයෝගය වියෝජනය නොවී පතනය කර ගත හැක."
+        };
+
+        let currentPrac = 1;
+
+        // Initialize Sidebar List with Mobile Friendly Badges
+        function initSidebar() {
+            const listContainer = document.getElementById("practical-list");
+            listContainer.innerHTML = "";
+            practicalsData.forEach((item) => {
+                const btn = document.createElement("button");
+                const numFormatted = item.id < 10 ? `0${item.id}` : `${item.id}`;
+                
+                btn.className = `prac-item-btn ${item.id === 1 ? 'active' : ''}`;
+                btn.onclick = () => loadPractical(item.id);
+                btn.innerHTML = `
+                    <div class="prac-no-badge">${numFormatted}</div>
+                    <div>
+                        <div class="prac-title-text">${item.title}</div>
+                        <div class="prac-cat-text">${item.cat}</div>
+                    </div>
+                `;
+                listContainer.appendChild(btn);
+            });
+        }
+
+        // Load Practical Controls and Theory
+        function loadPractical(id) {
+            currentPrac = id;
+            
+            // Highlight Active Button
+            const buttons = document.querySelectorAll("#practical-list button");
+            buttons.forEach((btn, idx) => {
+                if (idx + 1 === id) {
+                    btn.classList.add("active");
+                    btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                } else {
+                    btn.classList.remove("active");
+                }
+            });
+
+            const controls = document.getElementById("dynamicControls");
+            const title = document.getElementById("pracTitle");
+            const theory = document.getElementById("theoryNote");
+
+            const current = practicalsData.find(p => p.id === id);
+            const numFormatted = current.id < 10 ? `0${current.id}` : `${current.id}`;
+            title.innerHTML = `<i class="fa-solid fa-vial text-info me-2"></i>${numFormatted}. ${current.title}`;
+
+            // Inject Comprehensive Exam Theory Note
+            theory.innerHTML = theoryNotesData[id] || "උසස් පෙළ රසායන විද්‍යා විෂය නිර්දේශයට අදාළ ප්‍රායෝගික පරීක්ෂණ සිද්ධාන්ත මෙහි ඇතුළත් වේ.";
+
+            // Control Templates based on Practical ID
+            if (id === 1) {
+                controls.innerHTML = `
+                    <label class="form-label text-white small fw-bold">කැටායනය තෝරන්න (Cation):</label>
+                    <select id="p1_cation" class="form-select form-select-cyber mb-3" onchange="drawCurrentPrac()">
+                        <option value="Na">Na⁺ (සෝඩියම් - Sodium)</option>
+                        <option value="K">K⁺ (පොටෑසියම් - Potassium)</option>
+                        <option value="Ca">Ca²⁺ (කැල්සියම් - Calcium)</option>
+                        <option value="Ba">Ba²⁺ (බේරියම් - Barium)</option>
+                        <option value="Sr">Sr²⁺ (ස්ට්‍රොන්ටියම් - Strontium)</option>
+                        <option value="Cu">Cu²⁺ (කොපර් - Copper)</option>
+                    </select>`;
+            } 
+            else if (id >= 2 && id <= 4) {
+                controls.innerHTML = `
+                    <label class="form-label text-white small fw-bold">එකතු කළ පරිමාව (mL):</label>
+                    <input type="range" class="form-range" id="p_vol" min="0" max="50" value="0" step="0.5" oninput="drawCurrentPrac()">
+                    <div class="text-end text-info small fw-bold" id="p_vol_txt">0.0 mL</div>`;
+            }
+            else if (id === 5 || id === 6 || id === 11 || (id >= 20 && id <= 23) || id === 26 || id === 28) {
+                controls.innerHTML = `
+                    <label class="form-label text-white small fw-bold">පරීක්ෂණ සාම්පලය තෝරන්න:</label>
+                    <select id="p_sample" class="form-select form-select-cyber mb-3" onchange="drawCurrentPrac()">
+                        <option value="A">සාම්පලය A (Sample A)</option>
+                        <option value="B">සාම්පලය B (Sample B)</option>
+                        <option value="C">සාම්පලය C (Sample C)</option>
+                    </select>`;
+            }
+            else if (id === 7 || id === 17) {
+                controls.innerHTML = `
+                    <label class="form-label text-white small fw-bold">ප්‍රතික්‍රියක ප්‍රමාණය / සාන්ද්‍රණය:</label>
+                    <input type="range" class="form-range" id="p_temp_slider" min="0" max="50" value="10" step="1" oninput="drawCurrentPrac()">
+                    <div class="text-end text-warning small fw-bold" id="p_temp_txt">උෂ්ණත්වය: 25.0 °C</div>`;
+            }
+            else if (id === 8) {
+                controls.innerHTML = `
+                    <label class="form-label text-white small fw-bold">සාන්ද්‍රණය (Concentration):</label>
+                    <input type="range" class="form-range" id="p8_conc" min="1" max="5" value="3" step="1" oninput="drawCurrentPrac()">
+                    <div class="text-end text-success small fw-bold" id="p8_time_txt">කාලය: 20s</div>`;
+            }
+            else if (id === 9 || id === 16) {
+                controls.innerHTML = `
+                    <label class="form-label text-white small fw-bold">පීඩනය (Pressure - P):</label>
+                    <input type="range" class="form-range" id="p9_p" min="1" max="4" value="1" step="0.1" oninput="drawCurrentPrac()">
+                    <div class="text-end text-info small fw-bold" id="p9_vol_txt">පරිමාව (V): 100 mL</div>`;
+            }
+            else if (id === 18 || id === 19) {
+                controls.innerHTML = `
+                    <label class="form-label text-white small fw-bold">විද්‍යුත් ගාමක බලය / වෝල්ටීයතාව:</label>
+                    <input type="range" class="form-range" id="p_volt" min="0" max="12" value="2" step="0.5" oninput="drawCurrentPrac()">
+                    <div class="text-end text-info small fw-bold" id="p_volt_txt">Voltage: 2.0 V</div>`;
+            }
+            else if (id >= 29 && id <= 33) {
+                controls.innerHTML = `
+                    <label class="form-label text-white small fw-bold">රත් කිරීමේ තීව්‍රතාව (Heating Level):</label>
+                    <input type="range" class="form-range" id="p_heat" min="0" max="10" value="0" step="1" oninput="drawCurrentPrac()">
+                    <div class="text-end text-danger small fw-bold" id="p_heat_txt">වායු උත්පාදනය: 0%</div>`;
+            }
+            else if (id >= 38 && id <= 42) {
+                controls.innerHTML = `
+                    <label class="form-label text-white small fw-bold">ප්‍රක්‍රියාවේ කාලය (Process Progress):</label>
+                    <input type="range" class="form-range" id="p_prog" min="0" max="100" value="0" step="5" oninput="drawCurrentPrac()">
+                    <div class="text-end text-success small fw-bold" id="p_prog_txt">ප්‍රගතිය: 0%</div>`;
+            }
+            else {
+                controls.innerHTML = `
+                    <label class="form-label text-white small fw-bold">පරාමිතිය (Parameter):</label>
+                    <input type="range" class="form-range" id="p_gen" min="0" max="100" value="50" step="5" oninput="drawCurrentPrac()">
+                    <div class="text-end text-info small fw-bold" id="p_gen_txt">අගය: 50%</div>`;
+            }
+
+            drawCurrentPrac();
+        }
+
+        // Draw Simulation on Canvas
+        function drawCurrentPrac() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (currentPrac === 1) {
+                let cationElem = document.getElementById("p1_cation");
+                let cation = cationElem ? cationElem.value : "Na";
+                let colors = { Na: "#ffb703", K: "#9d4edd", Ca: "#ff5500", Ba: "#00ff88", Sr: "#ff0055", Cu: "#00f2fe" };
+                let names = { Na: "කහ (Yellow)", K: "ලයිලැක් / දම් (Lilac)", Ca: "ගඩොල් රතු (Brick Red)", Ba: "ඇපල් කොළ (Apple Green)", Sr: "තද රතු (Crimson)", Cu: "නිල්-කොළ (Blue-Green)" };
+                
+                // Burner Base
+                ctx.fillStyle = "#475569";
+                ctx.fillRect(360, 320, 80, 60);
+                ctx.fillRect(390, 240, 20, 80);
+
+                // Flame Glow Effect
+                let gradient = ctx.createRadialGradient(400, 160, 10, 400, 160, 80);
+                gradient.addColorStop(0, colors[cation]);
+                gradient.addColorStop(1, "transparent");
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(400, 160, 80, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Flame Core
+                ctx.fillStyle = colors[cation];
+                ctx.beginPath();
+                ctx.moveTo(400, 240);
+                ctx.quadraticCurveTo(360, 120, 400, 80);
+                ctx.quadraticCurveTo(440, 120, 400, 240);
+                ctx.fill();
+
+                document.getElementById("dynamicCalc").innerHTML = `
+                    • කැටායනය: <span class="text-info fw-bold">${cation}</span><br>
+                    • දැාලාවේ වර්ණය: <span class="fw-bold" style="color:${colors[cation]}">${names[cation]}</span>`;
+            }
+            else if (currentPrac >= 2 && currentPrac <= 4) {
+                let volElem = document.getElementById("p_vol");
+                let vol = volElem ? parseFloat(volElem.value) : 0;
+                document.getElementById("p_vol_txt").innerText = vol.toFixed(1) + " mL";
+
+                let endColor = vol >= 25 ? "rgba(255, 0, 128, 0.7)" : "rgba(255, 255, 255, 0.1)";
+                if(currentPrac === 3) endColor = vol >= 20 ? "rgba(255, 105, 180, 0.7)" : "rgba(255, 255, 255, 0.1)";
+                if(currentPrac === 4) endColor = vol < 22 ? "rgba(10, 20, 80, 0.9)" : "rgba(255, 255, 255, 0.1)";
+
+                // Burette Body
+                ctx.strokeStyle = "rgba(255,255,255,0.8)";
+                ctx.lineWidth = 3;
+                ctx.strokeRect(388, 40, 24, 200);
+
+                // Liquid in Burette
+                ctx.fillStyle = "rgba(0, 242, 254, 0.5)";
+                let buretteLiquidHeight = Math.max(0, 180 - (vol * 3.5));
+                ctx.fillRect(390, 42 + (180 - buretteLiquidHeight), 20, buretteLiquidHeight);
+
+                // Flask
+                ctx.strokeStyle = "rgba(255,255,255,0.8)";
+                ctx.beginPath();
+                ctx.moveTo(390, 240); ctx.lineTo(390, 270);
+                ctx.lineTo(330, 360); ctx.lineTo(470, 360);
+                ctx.lineTo(410, 270); ctx.lineTo(410, 240);
+                ctx.stroke();
+
+                // Flask Liquid
+                ctx.fillStyle = endColor;
+                ctx.beginPath();
+                ctx.moveTo(370, 290);
+                ctx.lineTo(340, 355);
+                ctx.lineTo(460, 355);
+                ctx.lineTo(430, 290);
+                ctx.closePath();
+                ctx.fill();
+
+                document.getElementById("dynamicCalc").innerHTML = `
+                    • එකතු කළ පරිමාව: <span class="text-warning fw-bold">${vol.toFixed(1)} mL</span><br>
+                    • තත්ත්වය: <span class="text-success fw-bold">${vol >= 20 ? "අන්ත ලක්ෂ්‍යය ලබාගෙන ඇත" : "අනුමාපනය සිදුවේ..."}</span>`;
+            }
+            else if (currentPrac === 8) {
+                let concElem = document.getElementById("p8_conc");
+                let conc = concElem ? parseFloat(concElem.value) : 3;
+                let time = 40 / conc;
+                document.getElementById("p8_time_txt").innerText = "කාලය: " + time.toFixed(0) + "s";
+
+                // Red 'X' Mark on paper
+                ctx.strokeStyle = "#ff0055";
+                ctx.lineWidth = 6;
+                ctx.beginPath();
+                ctx.moveTo(370, 290); ctx.lineTo(430, 350);
+                ctx.moveTo(430, 290); ctx.lineTo(370, 350);
+                ctx.stroke();
+
+                // Precipitate/Turbidity over X
+                ctx.fillStyle = `rgba(240, 240, 200, ${Math.min(1, conc * 0.22)})`;
+                ctx.beginPath();
+                ctx.arc(400, 320, 55, 0, Math.PI * 2);
+                ctx.fill();
+
+                document.getElementById("dynamicCalc").innerHTML = `
+                    • Na₂S₂O₃ සාන්ද්‍රණය: <span class="text-info fw-bold">${conc}x</span><br>
+                    • X නොපෙනී යාමට ගතවන කාලය: <span class="text-warning fw-bold">${time.toFixed(0)} s</span>`;
+            }
+            else if (currentPrac === 9) {
+                let pElem = document.getElementById("p9_p");
+                let p = pElem ? parseFloat(pElem.value) : 1;
+                let v = 100 / p;
+                document.getElementById("p9_vol_txt").innerText = "පරිමාව (V): " + v.toFixed(0) + " mL";
+
+                // Syringe Outer Cylinder
+                ctx.strokeStyle = "#fff";
+                ctx.lineWidth = 3;
+                ctx.strokeRect(250, 180, 300, 60);
+
+                // Syringe Piston Position based on Volume
+                let pistonPos = 250 + (v * 2.5);
+                ctx.fillStyle = "#00f2fe";
+                ctx.fillRect(pistonPos, 183, 12, 54);
+                ctx.fillRect(pistonPos, 205, 150, 10);
+
+                document.getElementById("dynamicCalc").innerHTML = `
+                    • පීඩනය (P): <span class="text-info fw-bold">${p.toFixed(1)} atm</span><br>
+                    • පරිමාව (V): <span class="text-warning fw-bold">${v.toFixed(0)} mL</span>`;
+            }
+            else if (currentPrac === 18 || currentPrac === 19) {
+                let voltElem = document.getElementById("p_volt");
+                let volt = voltElem ? parseFloat(voltElem.value) : 2;
+                document.getElementById("p_volt_txt").innerText = "Voltage: " + volt.toFixed(1) + " V";
+
+                // Beaker Body
+                ctx.strokeStyle = "#00f2fe";
+                ctx.lineWidth = 4;
+                ctx.strokeRect(280, 180, 240, 160);
+
+                // Electrolyte Liquid
+                ctx.fillStyle = "rgba(0, 150, 255, 0.3)";
+                ctx.fillRect(284, 210, 232, 126);
+
+                // Electrodes
+                ctx.fillStyle = "#94a3b8";
+                ctx.fillRect(320, 120, 20, 180);
+                ctx.fillRect(460, 120, 20, 180);
+
+                // Connecting Wires
+                ctx.strokeStyle = "#ffb703";
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(330, 120); ctx.lineTo(330, 80); ctx.lineTo(470, 80); ctx.lineTo(470, 120);
+                ctx.stroke();
+
+                // Gas Bubbles Animation
+                ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+                for(let i = 0; i < volt * 3; i++) {
+                    ctx.beginPath();
+                    ctx.arc(325 + (Math.random() * 10), 280 - (Math.random() * 80), 3, 0, Math.PI * 2);
+                    ctx.arc(465 + (Math.random() * 10), 280 - (Math.random() * 80), 3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                document.getElementById("dynamicCalc").innerHTML = `
+                    • වෝල්ටීයතාව: <span class="text-info fw-bold">${volt.toFixed(1)} V</span><br>
+                    • විද්‍යුත් විච්ඡේදනය: <span class="text-success fw-bold">සක්‍රීයයි</span>`;
+            }
+            else if (currentPrac >= 29 && currentPrac <= 33) {
+                let heatElem = document.getElementById("p_heat");
+                let heat = heatElem ? parseFloat(heatElem.value) : 0;
+                document.getElementById("p_heat_txt").innerText = "වායු උත්පාදනය: " + (heat * 10) + "%";
+
+                // Heating Flask
+                ctx.strokeStyle = "#fff";
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(400, 260, 50, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // Solution inside
+                ctx.fillStyle = "rgba(0, 255, 136, 0.4)";
+                ctx.beginPath();
+                ctx.arc(400, 260, 48, 0, Math.PI);
+                ctx.fill();
+
+                // Gas bubbles rising
+                if (heat > 0) {
+                    ctx.fillStyle = "#00f2fe";
+                    for(let i=0; i<heat*2; i++) {
+                        ctx.beginPath();
+                        ctx.arc(380 + Math.random()*40, 280 - Math.random()*80, 4, 0, Math.PI*2);
+                        ctx.fill();
+                    }
+                }
+
+                document.getElementById("dynamicCalc").innerHTML = `
+                    • රත් කිරීමේ මට්ටම: <span class="text-danger fw-bold">${heat}</span><br>
+                    • වායු පිටවීමේ සීඝ්‍රතාව: <span class="text-warning fw-bold">${heat * 10}%</span>`;
+            }
+            else {
+                // Default Visualizer for other practicals (Test Tube Setup)
+                let genElem = document.getElementById("p_gen");
+                let val = genElem ? genElem.value : 50;
+                let txtElem = document.getElementById("p_gen_txt");
+                if(txtElem) txtElem.innerText = "අගය: " + val + "%";
+
+                ctx.strokeStyle = "rgba(255,255,255,0.8)";
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.arc(400, 320, 30, 0, Math.PI);
+                ctx.lineTo(430, 140);
+                ctx.lineTo(370, 140);
+                ctx.closePath();
+                ctx.stroke();
+
+                ctx.fillStyle = "rgba(0, 242, 254, 0.5)";
+                ctx.beginPath();
+                ctx.arc(400, 318, 28, 0, Math.PI);
+                ctx.lineTo(428, 200);
+                ctx.lineTo(372, 200);
+                ctx.closePath();
+                ctx.fill();
+
+                document.getElementById("dynamicCalc").innerHTML = `
+                    • පරීක්ෂණ පද්ධතිය: <span class="text-info fw-bold">සක්‍රීයයි</span><br>
+                    • නිරීක්ෂණය: <span class="text-success fw-bold">සාර්ථකව සිමියුලේට් විය.</span>`;
+            }
+        }
+
+        // Initialize App
+        window.onload = () => {
+            initSidebar();
+            loadPractical(1);
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

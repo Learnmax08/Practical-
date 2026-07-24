@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Virtual Lab - Advanced Simple Pendulum</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        body {
+            background-color: #0b0e14 !important;
+            color: #c9d1d9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .cyber-card {
+            background: rgba(22, 27, 34, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .canvas-container {
+            background: #161b22;
+            border: 2px solid #30363d;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        .form-range::-webkit-slider-thumb {
+            background: #ffc107;
+            box-shadow: 0 0 10px #ffc107;
+        }
+
+        .glowing-text {
+            text-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <nav class="navbar navbar-dark bg-dark border-bottom border-secondary py-3">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-warning glowing-text" href="#">
+                <i class="fa-solid fa-stopwatch me-2"></i>NEXUS VIRTUAL LABS
+            </a>
+            <span class="badge bg-outline-warning border border-warning text-warning">A/L Physics Practical #03</span>
+        </div>
+    </nav>
+
+    <div class="container my-4">
+        <div class="row mb-3">
+            <div class="col-12">
+                <h2 class="fw-bold text-white mb-1">⏱️ සරල පැද්දුම (Simple Pendulum Simulator)</h2>
+                <p class="text-muted">Real-time $T^2$ vs $l$ Graph Plotter සහ $g$ අගය ගණනය කිරීමේ පද්ධතිය සහිතයි.</p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Left Column: Canvas & Simulator Controls -->
+            <div class="col-lg-6">
+                <div class="cyber-card p-3 p-md-4">
+                    <div class="canvas-container mb-3">
+                        <canvas id="pendulumCanvas" width="500" height="350"></canvas>
+                    </div>
+
+                    <!-- Environment & Controls -->
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-white small fw-bold"><i class="fa-solid fa-globe text-info me-1"></i> පරිසරය (Gravity Preset):</label>
+                            <select id="envSelect" class="form-select bg-dark text-white border-secondary">
+                                <option value="9.81">පොළොව Earth (g = 9.81 m/s²)</option>
+                                <option value="1.62">සඳ Moon (g = 1.62 m/s²)</option>
+                                <option value="24.79">බ්‍රහස්පති Jupiter (g = 24.79 m/s²)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-white small fw-bold"><i class="fa-solid fa-ruler-vertical text-warning me-1"></i> තන්තුවේ දිග ($l$): <span id="len_val" class="text-warning">80 cm</span></label>
+                            <input type="range" class="form-range mt-2" id="lengthSlider" min="30" max="120" value="80">
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-2">
+                        <button id="start_btn" class="btn btn-success flex-grow-1 fw-bold"><i class="fa-solid fa-play me-1"></i> Start</button>
+                        <button id="pause_btn" class="btn btn-warning flex-grow-1 fw-bold"><i class="fa-solid fa-pause me-1"></i> Pause</button>
+                        <button id="reset_btn" class="btn btn-danger fw-bold"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Digital Timer & Data Recording -->
+            <div class="col-lg-6">
+                <!-- Digital Stopwatch Box -->
+                <div class="cyber-card p-3 text-center mb-4 border-warning">
+                    <h6 class="text-muted text-uppercase fw-bold mb-1">Digital Stopwatch</h6>
+                    <div id="stopwatch_display" class="display-4 fw-bold text-warning glowing-text font-monospace">00:00.00</div>
+                    <div class="mt-2 text-muted small">දෝලන සංඛ්‍යාව (Oscillations): <span id="osc_count" class="text-white fs-5 fw-bold">0</span> / 20</div>
+                    
+                    <div class="d-flex gap-2 justify-content-center mt-3">
+                        <button id="record_btn" class="btn btn-warning fw-bold"><i class="fa-solid fa-plus me-1"></i> වගුවට එකතු කරන්න (Record Current)</button>
+                        <button id="auto_calc_btn" class="btn btn-info text-dark fw-bold"><i class="fa-solid fa-bolt me-1"></i> 20 Oscillations (Auto Record)</button>
+                    </div>
+                </div>
+
+                <!-- Theory Box -->
+                <div class="cyber-card p-3">
+                    <h6 class="fw-bold text-warning mb-2"><i class="fa-solid fa-square-root-variable me-2"></i>සමීකරණය (Theory)</h6>
+                    <div class="p-2 bg-dark rounded border border-secondary text-center small">
+                        $$T = 2\pi \sqrt{\frac{l}{g}} \implies T^2 = \left(\frac{4\pi^2}{g}\right) l$$
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2: Data Table & Real-time Graph -->
+        <div class="row g-4 mt-2">
+            <!-- Data Table -->
+            <div class="col-lg-6">
+                <div class="cyber-card p-3 p-md-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold text-white mb-0"><i class="fa-solid fa-table me-2 text-info"></i>මිනුම් වගුව (Data Log)</h5>
+                        <button id="clear_table_btn" class="btn btn-outline-danger btn-sm"><i class="fa-solid fa-trash me-1"></i>Clear Table</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-striped align-middle text-center small border-secondary">
+                            <thead>
+                                <tr>
+                                    <th>$l$ (m)</th>
+                                    <th>$t_{20}$ (s)</th>
+                                    <th>$T$ (s)</th>
+                                    <th>$T^2$ ($\text{s}^2$)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="data_table_body">
+                                <tr id="empty_row"><td colspan="4" class="text-muted">තවම දත්ත එකතු කර නැත.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Graph Container -->
+            <div class="col-lg-6">
+                <div class="cyber-card p-3 p-md-4">
+                    <h5 class="fw-bold text-white mb-2"><i class="fa-solid fa-chart-line me-2 text-warning"></i>$T^2$ vs $l$ ප්‍රස්ථාරය</h5>
+                    <div style="height: 220px;">
+                        <canvas id="graphCanvas"></canvas>
+                    </div>
+                    <div class="mt-2 p-2 bg-dark rounded border border-secondary d-flex justify-content-between align-items-center small">
+                        <span>අනුක්‍රමණය ($m$): <strong id="slope_val" class="text-warning">0.00</strong></span>
+                        <span>ගණනය කළ $g$: <strong id="calc_g_val" class="text-info">0.00 m/s²</strong></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MathJax Integration -->
+    <script>
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+    <!-- Simulation & Chart Script -->
+    <script>
+        const canvas = document.getElementById("pendulumCanvas");
+        const ctx = canvas.getContext("2d");
+        const lengthSlider = document.getElementById("lengthSlider");
+        const envSelect = document.getElementById("envSelect");
+        const recordBtn = document.getElementById("record_btn");
+        const autoCalcBtn = document.getElementById("auto_calc_btn");
+        const clearTableBtn = document.getElementById("clear_table_btn");
+
+        let L_cm = 80;
+        let g = 9.81;
+        let angle = Math.PI / 12;
+        let angleVel = 0;
+        let isRunning = false;
+
+        let startTime = 0;
+        let elapsedTime = 0;
+        let timerInterval = null;
+        let oscCount = 0;
+        let prevAngle = angle;
+
+        let tableData = [];
+
+        // Chart.js Setup
+        const graphCtx = document.getElementById('graphCanvas').getContext('2d');
+        const pendulumChart = new Chart(graphCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'T² vs l',
+                    data: [],
+                    backgroundColor: '#ffc107',
+                    borderColor: '#ffc107',
+                    showLine: true,
+                    borderDash: [5, 5]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { title: { display: true, text: 'Length l (m)', color: '#c9d1d9' }, grid: { color: '#30363d' }, ticks: { color: '#c9d1d9' } },
+                    y: { title: { display: true, text: 'T² (s²)', color: '#c9d1d9' }, grid: { color: '#30363d' }, ticks: { color: '#c9d1d9' } }
+                },
+                plugins: { legend: { labels: { color: '#c9d1d9' } } }
+            }
+        });
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            let px = canvas.width / 2;
+            let py = 30;
+
+            if (isRunning) {
+                let L_m = L_cm / 100;
+                let dt = 0.016;
+                let angleAcc = (-1 * g / L_m) * Math.sin(angle);
+                angleVel += angleAcc * dt;
+                angle += angleVel * dt;
+
+                // Oscillation Counter
+                if ((prevAngle < 0 && angle >= 0) || (prevAngle > 0 && angle <= 0)) {
+                    oscCount += 0.5;
+                    let countInt = Math.floor(oscCount);
+                    document.getElementById("osc_count").innerText = countInt;
+
+                    if (countInt >= 20) {
+                        pauseSimulation();
+                    }
+                }
+                prevAngle = angle;
+            }
+
+            let visualLength = L_cm * 2.2;
+            let bx = px + visualLength * Math.sin(angle);
+            let by = py + visualLength * Math.cos(angle);
+
+            ctx.fillStyle = "#30363d";
+            ctx.fillRect(px - 50, py - 10, 100, 10);
+
+            ctx.strokeStyle = "#c9d1d9";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(px, py);
+            ctx.lineTo(bx, by);
+            ctx.stroke();
+
+            ctx.fillStyle = "#ffc107";
+            ctx.shadowColor = "#ffc107";
+            ctx.shadowBlur = 12;
+            ctx.beginPath();
+            ctx.arc(bx, by, 14, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            requestAnimationFrame(animate);
+        }
+
+        function updateTimer() {
+            elapsedTime = Date.now() - startTime;
+            let totalSecs = elapsedTime / 1000;
+            let mins = Math.floor(totalSecs / 60);
+            let secs = Math.floor(totalSecs % 60);
+            let ms = Math.floor((elapsedTime % 1000) / 10);
+
+            document.getElementById("stopwatch_display").innerText = 
+                `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}.${String(ms).padStart(2,'0')}`;
+        }
+
+        function pauseSimulation() {
+            isRunning = false;
+            clearInterval(timerInterval);
+        }
+
+        // Add Entry to Table and Update Graph
+        function addDataRow(l_m, t20) {
+            let T = t20 / 20;
+            let T2 = T * T;
+
+            tableData.push({ x: l_m, y: parseFloat(T2.toFixed(3)), l: l_m, t20: t20.toFixed(2), T: T.toFixed(2), T2: T2.toFixed(3) });
+
+            // Sort by Length
+            tableData.sort((a, b) => a.l - b.l);
+
+            // Render Table
+            let tbody = document.getElementById("data_table_body");
+            tbody.innerHTML = "";
+            tableData.forEach(row => {
+                tbody.innerHTML += `<tr>
+                    <td>${row.l}</td>
+                    <td>${row.t20}</td>
+                    <td>${row.T}</td>
+                    <td>${row.T2}</td>
+                </tr>`;
+            });
+
+            // Update Graph
+            pendulumChart.data.datasets[0].data = tableData;
+            pendulumChart.update();
+
+            // Calculate Slope and g
+            if (tableData.length > 1) {
+                let first = tableData[0];
+                let last = tableData[tableData.length - 1];
+                let slope = (last.y - first.y) / (last.x - first.x);
+                let calcG = (4 * Math.PI * Math.PI) / slope;
+
+                document.getElementById("slope_val").innerText = slope.toFixed(2);
+                document.getElementById("calc_g_val").innerText = calcG.toFixed(2) + " m/s²";
+            }
+        }
+
+        // Button Listeners
+        document.getElementById("start_btn").addEventListener("click", () => {
+            if (!isRunning) {
+                isRunning = true;
+                startTime = Date.now() - elapsedTime;
+                timerInterval = setInterval(updateTimer, 10);
+            }
+        });
+
+        document.getElementById("pause_btn").addEventListener("click", pauseSimulation);
+
+        document.getElementById("reset_btn").addEventListener("click", () => {
+            pauseSimulation();
+            elapsedTime = 0;
+            oscCount = 0;
+            angle = Math.PI / 12;
+            angleVel = 0;
+            document.getElementById("stopwatch_display").innerText = "00:00.00";
+            document.getElementById("osc_count").innerText = "0";
+        });
+
+        lengthSlider.addEventListener("input", (e) => {
+            L_cm = parseFloat(e.target.value);
+            document.getElementById("len_val").innerText = L_cm + " cm";
+        });
+
+        envSelect.addEventListener("change", (e) => {
+            g = parseFloat(e.target.value);
+        });
+
+        // Record Button (Manual)
+        recordBtn.addEventListener("click", () => {
+            let l_m = L_cm / 100;
+            let t20 = elapsedTime > 0 ? (elapsedTime / 1000) : (2 * Math.PI * Math.sqrt(l_m / g) * 20);
+            addDataRow(l_m, t20);
+        });
+
+        // Auto Record 20 Oscillations Time
+        autoCalcBtn.addEventListener("click", () => {
+            let l_m = L_cm / 100;
+            let exactT = 2 * Math.PI * Math.sqrt(l_m / g);
+            let t20 = exactT * 20;
+
+            document.getElementById("osc_count").innerText = "20";
+            document.getElementById("stopwatch_display").innerText = `00:${t20.toFixed(2)}`;
+            
+            addDataRow(l_m, t20);
+        });
+
+        // Clear Table Button
+        clearTableBtn.addEventListener("click", () => {
+            tableData = [];
+            document.getElementById("data_table_body").innerHTML = '<tr id="empty_row"><td colspan="4" class="text-muted">තවම දත්ත එකතු කර නැත.</td></tr>';
+            pendulumChart.data.datasets[0].data = [];
+            pendulumChart.update();
+            document.getElementById("slope_val").innerText = "0.00";
+            document.getElementById("calc_g_val").innerText = "0.00 m/s²";
+        });
+
+        animate();
+    </script>
+</body>
+</html>

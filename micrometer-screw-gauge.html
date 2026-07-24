@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Virtual Lab - Advanced Micrometer Gauge</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            background-color: #0b0e14 !important;
+            color: #c9d1d9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .cyber-card {
+            background: rgba(22, 27, 34, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .canvas-container {
+            background: #161b22;
+            border: 2px solid #30363d;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            background: #0d1117;
+        }
+
+        .form-range::-webkit-slider-thumb {
+            background: #00d2ff;
+            box-shadow: 0 0 10px #00d2ff;
+        }
+
+        .glowing-text {
+            text-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+        }
+
+        .glowing-btn {
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .glowing-btn:hover {
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.6);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <nav class="navbar navbar-dark bg-dark border-bottom border-secondary py-3">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-info glowing-text" href="#">
+                <i class="fa-solid fa-microscope me-2"></i>NEXUS VIRTUAL LABS
+            </a>
+            <span class="badge bg-outline-info border border-info text-info">A/L Physics Practical #02 (Advanced)</span>
+        </div>
+    </nav>
+
+    <div class="container my-4">
+        <div class="row mb-3">
+            <div class="col-12">
+                <h2 class="fw-bold text-white mb-1">🔬 මයික්‍රෝමීටර් ආනති මානය (Advanced Simulator)</h2>
+                <p class="text-muted">ශූන්‍ය දෝෂ (Zero Errors) සහ විවිධ වස්තූන්ගේ මිනුම් ලබාගැනීම සහිතයි.</p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Left Column: Canvas & Controls -->
+            <div class="col-lg-8">
+                <div class="cyber-card p-3 p-md-4">
+                    <!-- Canvas Box -->
+                    <div class="canvas-container mb-3">
+                        <canvas id="gaugeCanvas" width="800" height="260"></canvas>
+                    </div>
+
+                    <!-- Object Selection & Zero Error Controls -->
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-white small fw-bold"><i class="fa-solid fa-cube text-warning me-1"></i> මැනීමට වස්තුවක් තෝරන්න:</label>
+                            <select id="objectSelect" class="form-select bg-dark text-white border-secondary">
+                                <option value="none">වස්තුවක් නැත (None)</option>
+                                <option value="wire">සිහින් කම්බිය (Wire - ~1.25 mm)</option>
+                                <option value="glass">වීදුරු තහඩුව (Glass Sheet - ~3.80 mm)</option>
+                                <option value="sphere">ලෝහ ගෝලය (Metal Sphere - ~5.45 mm)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-white small fw-bold"><i class="fa-solid fa-triangle-exclamation text-danger me-1"></i> ශූන්‍ය දෝෂය (Zero Error):</label>
+                            <select id="zeroErrorSelect" class="form-select bg-dark text-white border-secondary">
+                                <option value="0">දෝෂයක් නැත (0.00 mm)</option>
+                                <option value="0.03">ධන ශූන්‍ය දෝෂය (+0.03 mm)</option>
+                                <option value="-0.03">ඍණ ශූන්‍ය දෝෂය (-0.03 mm)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Main Thimble Slider -->
+                    <div class="p-3 rounded bg-dark border border-secondary mb-3">
+                        <label class="form-label d-flex justify-content-between fw-bold text-white mb-1">
+                            <span><i class="fa-solid fa-arrows-left-right me-2 text-info"></i>ආනතිය කරකවන්න (Rotate Thimble):</span>
+                            <span id="sliderValueText" class="text-info fs-5">0.00 mm</span>
+                        </label>
+                        <input type="range" class="form-range" id="positionSlider" min="0" max="15" step="0.01" value="0">
+                    </div>
+
+                    <!-- Live Readings Cards -->
+                    <div class="row g-2 text-center">
+                        <div class="col-3">
+                            <div class="p-2 border border-secondary rounded bg-dark">
+                                <small class="text-muted d-block" style="font-size:0.75rem;">ප්‍රධාන පරිමාණය (MSR)</small>
+                                <span id="msr_text" class="fw-bold text-white">0.0 mm</span>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="p-2 border border-secondary rounded bg-dark">
+                                <small class="text-muted d-block" style="font-size:0.75rem;">වට පරිමාණය (CSR)</small>
+                                <span id="csr_text" class="fw-bold text-info">0</span>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="p-2 border border-secondary rounded bg-dark">
+                                <small class="text-muted d-block" style="font-size:0.75rem;">දක්වන පාඨාංකය</small>
+                                <span id="raw_reading_text" class="fw-bold text-warning">0.00 mm</span>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="p-2 border border-info rounded bg-dark">
+                                <small class="text-info d-block fw-bold" style="font-size:0.75rem;">නිවැරදි කළ පාඨාංකය</small>
+                                <span id="corrected_text" class="fw-bold text-info glowing-text">0.00 mm</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Theory & Interactive Quiz -->
+            <div class="col-lg-4">
+                <!-- Theory Card -->
+                <div class="cyber-card p-3 p-md-4 mb-4">
+                    <h5 class="fw-bold text-warning mb-3"><i class="fa-solid fa-book-open me-2"></i>සිද්ධාන්ත (Theory)</h5>
+                    <ul class="list-unstyled small lh-lg mb-0">
+                        <li>🔹 <strong>අන්තරාලය (Pitch):</strong> $0.5\text{ mm}$</li>
+                        <li>🔹 <strong>කුඩාම මිනුම (Least Count):</strong><br>
+                            $$\text{LC} = \frac{\text{Pitch}}{\text{Divisions}} = \frac{0.5\text{ mm}}{50} = 0.01\text{ mm}$$
+                        </li>
+                        <li>🔹 <strong>දෝෂ ශෝධනය:</strong><br>
+                            $$\text{Corrected Reading} = \text{Observed Reading} - (\pm\text{Zero Error})$$
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Self Assessment Test Card -->
+                <div class="cyber-card p-3 p-md-4">
+                    <h5 class="fw-bold text-success mb-3"><i class="fa-solid fa-pen-to-square me-2"></i>ස්වයං ඇගයීම (Quiz)</h5>
+                    <p class="small text-muted">සසම්භාවී පාඨාංකයක් ලබාගෙන නිවැරදි අගය සොයා ටයිප් කරන්න.</p>
+                    
+                    <button id="random_quiz_btn" class="btn btn-info text-dark w-100 mb-3 fw-bold glowing-btn">🎯 Random Reading එකක් ගන්න</button>
+
+                    <div id="quiz_box" class="d-none">
+                        <div class="mb-2">
+                            <label class="form-label small text-white">ඔබේ පාඨාංකය (Corrected Reading in mm):</label>
+                            <input type="number" step="0.01" id="user_quiz_input" class="form-control bg-dark text-white border-secondary" placeholder="eg: 3.42">
+                        </div>
+                        <button id="check_quiz_btn" class="btn btn-success w-100 fw-bold">පිළිතුර පරීක්ෂා කරන්න</button>
+                        <div id="quiz_result" class="mt-2 text-center fw-bold"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MathJax Integration -->
+    <script>
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+    <!-- Interactive Canvas Script -->
+    <script>
+        const canvas = document.getElementById("gaugeCanvas");
+        const ctx = canvas.getContext("2d");
+        const slider = document.getElementById("positionSlider");
+        const objectSelect = document.getElementById("objectSelect");
+        const zeroErrorSelect = document.getElementById("zeroErrorSelect");
+
+        let currentValue = 0;
+        let isQuizMode = false;
+
+        function drawGauge(val) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            let zeroError = parseFloat(zeroErrorSelect.value);
+            let observedVal = val + zeroError;
+            if (observedVal < 0) observedVal = 0;
+
+            // Frame Body (C-Shape)
+            ctx.fillStyle = "#1c2128";
+            ctx.strokeStyle = "#484f58";
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.arc(220, 130, 90, 0.25 * Math.PI, 1.75 * Math.PI, false);
+            ctx.lineTo(290, 40);
+            ctx.lineTo(290, 220);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Fixed Anvil
+            ctx.fillStyle = "#8b949e";
+            ctx.fillRect(130, 120, 20, 20);
+            ctx.strokeRect(130, 120, 20, 20);
+
+            // Spindle & Gap Visual
+            let visualGap = observedVal * 12; // Visual scaling
+            let spindleX = 150 + visualGap;
+            
+            ctx.fillStyle = "#a3b1c2";
+            ctx.fillRect(spindleX, 120, 140 - visualGap, 20);
+            ctx.strokeRect(spindleX, 120, 140 - visualGap, 20);
+
+            // Selected Object Visual Rendering
+            let selectedObj = objectSelect.value;
+            if (selectedObj === "wire") {
+                ctx.fillStyle = "#d97706";
+                ctx.fillRect(150, 128, visualGap, 4); // Wire
+            } else if (selectedObj === "glass") {
+                ctx.fillStyle = "rgba(56, 189, 248, 0.5)";
+                ctx.strokeStyle = "#38bdf8";
+                ctx.fillRect(150, 90, visualGap, 80);
+                ctx.strokeRect(150, 90, visualGap, 80); // Glass Plate
+            } else if (selectedObj === "sphere") {
+                ctx.fillStyle = "#94a3b8";
+                ctx.beginPath();
+                ctx.arc(150 + visualGap/2, 130, visualGap/2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke(); // Metal Sphere
+            }
+
+            // Main Sleeve Body
+            ctx.fillStyle = "#2d333b";
+            ctx.fillRect(290, 105, 180, 50);
+            ctx.strokeRect(290, 105, 180, 50);
+
+            // Index Baseline
+            ctx.strokeStyle = "#ffffff";
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(290, 130);
+            ctx.lineTo(470, 130);
+            ctx.stroke();
+
+            // Main Scale Markings (0.5 mm steps)
+            for (let i = 0; i <= 30; i++) {
+                let x = 300 + (i * 5.2);
+                if (x > 465) break;
+                let isTop = i % 2 === 0;
+
+                ctx.beginPath();
+                ctx.moveTo(x, 130);
+                ctx.lineTo(x, isTop ? 115 : 145);
+                ctx.stroke();
+
+                if (isTop && i % 10 === 0) {
+                    ctx.fillStyle = "#ffffff";
+                    ctx.font = "10px monospace";
+                    ctx.fillText(i / 2, x - 3, 110);
+                }
+            }
+
+            // Rotating Thimble Body
+            let thimbleX = 300 + (observedVal * 10.4);
+            ctx.fillStyle = "#161b22";
+            ctx.strokeStyle = "#00d2ff";
+            ctx.lineWidth = 2;
+            ctx.fillRect(thimbleX, 90, 130, 80);
+            ctx.strokeRect(thimbleX, 90, 130, 80);
+
+            // Circular Scale Division Coincidence (CS)
+            let cs = Math.round((observedVal % 0.5) / 0.01);
+            if (cs >= 50) cs = 0;
+
+            ctx.fillStyle = "#00d2ff";
+            ctx.font = "bold 13px monospace";
+            ctx.fillText("— " + cs, thimbleX + 8, 134);
+
+            updateCalculations(val, zeroError, cs);
+        }
+
+        function updateCalculations(val, zeroError, cs) {
+            let observedVal = val + zeroError;
+            let msr = Math.floor(observedVal * 2) / 2;
+            let rawReading = msr + (cs * 0.01);
+            let correctedReading = rawReading - zeroError;
+
+            document.getElementById("sliderValueText").innerText = val.toFixed(2) + " mm";
+
+            if (!isQuizMode) {
+                document.getElementById("msr_text").innerText = msr.toFixed(1) + " mm";
+                document.getElementById("csr_text").innerText = cs;
+                document.getElementById("raw_reading_text").innerText = rawReading.toFixed(2) + " mm";
+                document.getElementById("corrected_text").innerText = correctedReading.toFixed(2) + " mm";
+            } else {
+                document.getElementById("msr_text").innerText = "???";
+                document.getElementById("csr_text").innerText = "???";
+                document.getElementById("raw_reading_text").innerText = "???";
+                document.getElementById("corrected_text").innerText = "???";
+            }
+        }
+
+        // Event Listeners
+        slider.addEventListener("input", (e) => {
+            currentValue = parseFloat(e.target.value);
+            drawGauge(currentValue);
+        });
+
+        objectSelect.addEventListener("change", (e) => {
+            let targetVal = 0;
+            if (e.target.value === "wire") targetVal = 1.25;
+            else if (e.target.value === "glass") targetVal = 3.80;
+            else if (e.target.value === "sphere") targetVal = 5.45;
+
+            slider.value = targetVal;
+            currentValue = targetVal;
+            drawGauge(currentValue);
+        });
+
+        zeroErrorSelect.addEventListener("change", () => drawGauge(currentValue));
+
+        // Quiz Logic
+        document.getElementById("random_quiz_btn").addEventListener("click", () => {
+            isQuizMode = true;
+            objectSelect.value = "none";
+            let randomVal = (Math.floor(Math.random() * 800) / 100).toFixed(2);
+            currentValue = parseFloat(randomVal);
+            slider.value = currentValue;
+
+            document.getElementById("quiz_box").classList.remove("d-none");
+            document.getElementById("quiz_result").innerText = "";
+            document.getElementById("user_quiz_input").value = "";
+
+            drawGauge(currentValue);
+        });
+
+        document.getElementById("check_quiz_btn").addEventListener("click", () => {
+            let userAns = parseFloat(document.getElementById("user_quiz_input").value);
+            let actualAns = parseFloat(currentValue.toFixed(2));
+
+            let resDiv = document.getElementById("quiz_result");
+            if (Math.abs(userAns - actualAns) < 0.02) {
+                resDiv.className = "mt-2 text-center fw-bold text-success";
+                resDiv.innerText = "🎉 නිවැරදියි! ඔබ සාර්ථකව පාඨාංකය ලබාගත්තා.";
+                isQuizMode = false;
+                drawGauge(currentValue);
+            } else {
+                resDiv.className = "mt-2 text-center fw-bold text-danger";
+                resDiv.innerText = "❌ වැරදියි! නැවත උත්සාහ කරන්න.";
+            }
+        });
+
+        // Initial Draw
+        drawGauge(0);
+    </script>
+</body>
+</html>

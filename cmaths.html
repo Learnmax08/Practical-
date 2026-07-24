@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A/L Combined Mathematics Complete Standard Formulas Bank</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- MathJax Configuration & Script -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$']]
+        }
+      };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            --bg-dark: #090d16;
+            --card-bg: rgba(17, 24, 39, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --accent-blue: #3b82f6;
+            --accent-cyan: #06b6d4;
+            --accent-glow: rgba(6, 182, 212, 0.15);
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --desc-color: #38bdf8;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.08) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Glassmorphism Classes */
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        .navbar-custom {
+            background: rgba(9, 13, 22, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .form-control-cyber {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            color: #ffffff !important;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .form-control-cyber::placeholder {
+            color: #64748b;
+        }
+
+        .form-control-cyber:focus {
+            background: rgba(15, 23, 42, 0.9);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        /* Vertical Navigation Styling */
+        .topic-list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .topic-btn {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 12px 16px;
+            color: var(--text-sub);
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-weight: 500;
+            font-size: 0.92rem;
+            text-align: left;
+            transition: all 0.25s ease;
+            cursor: pointer;
+        }
+
+        .topic-btn:hover {
+            background: rgba(59, 130, 246, 0.1);
+            color: #ffffff;
+            border-color: rgba(59, 130, 246, 0.4);
+            transform: translateX(4px);
+        }
+
+        .topic-btn.active {
+            background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+            color: #ffffff;
+            border-color: transparent;
+            box-shadow: 0 4px 20px rgba(2, 132, 199, 0.3);
+            font-weight: 600;
+        }
+
+        .topic-btn i {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            transition: transform 0.2s ease;
+        }
+
+        .topic-btn:hover i, .topic-btn.active i {
+            opacity: 1;
+            transform: translateX(2px);
+        }
+
+        /* Formula Card Styling */
+        .formula-card {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-cyan);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .formula-card:hover {
+            border-color: rgba(6, 182, 212, 0.4);
+            border-left-color: #38bdf8;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .formula-card h6 {
+            color: #f8fafc !important;
+            font-size: 1.05rem;
+            letter-spacing: 0.3px;
+        }
+
+        .formula-card .formula-desc {
+            color: var(--desc-color) !important;
+            font-size: 0.85rem;
+            background: rgba(6, 182, 212, 0.1);
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(6, 182, 212, 0.2);
+        }
+
+        .math-box {
+            background: rgba(5, 9, 20, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 16px;
+            color: #ffffff;
+            font-size: 1.2rem;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Scrollbar Improvements */
+        .scroll-area {
+            max-height: 70vh;
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+
+        .scroll-area::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scroll-area::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+        }
+
+        .scroll-area::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+        }
+
+        .scroll-area::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .badge-counter {
+            background: linear-gradient(135deg, #0284c7, #06b6d4);
+            color: #ffffff;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <nav class="navbar navbar-dark navbar-custom sticky-top py-3">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold text-info fs-4 d-flex align-items-center" href="#">
+                <i class="fa-solid fa-square-root-variable text-cyan me-2 fs-3"></i>
+                <span>NEXUS COMBINED MATHS BANK <span class="text-white fw-light fs-5"></span></span>
+            </a>
+            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold">
+                <i class="fa-solid fa-graduation-cap me-1"></i> G.C.E. A/L Syllabus
+            </span>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4 my-4">
+        <div class="row g-4">
+            
+            <!-- Left Panel: Controls & Vertical Topics -->
+            <div class="col-xl-4 col-lg-5">
+                <div class="glass-card p-4 mb-4">
+                    <h6 class="fw-bold text-warning mb-3 text-uppercase tracking-wider">
+                        <i class="fa-solid fa-magnifying-glass me-2"></i>සූත්‍ර සෙවුම (Search)
+                    </h6>
+                    <input type="text" id="searchInput" class="form-control form-control-cyber" placeholder="සූත්‍රය හෝ පාඩම සොයන්න (eg: quadratic, integration)..." onkeyup="filterFormulas()">
+                </div>
+
+                <!-- Vertical Topic List -->
+                <div class="glass-card p-4">
+                    <h6 class="fw-bold text-info mb-3 text-uppercase tracking-wider d-flex justify-content-between align-items-center">
+                        <span><i class="fa-solid fa-layer-group me-2"></i>පාඩම් ලැයිස්තුව</span>
+                        <span class="badge bg-secondary fs-6 rounded-pill" id="totalTopicsCount">0</span>
+                    </h6>
+                    <div class="topic-list-container scroll-area" id="topicList">
+                        <!-- Categories injected via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Dynamic Formulas View -->
+            <div class="col-xl-8 col-lg-7">
+                <div class="glass-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary border-opacity-25 pb-3">
+                        <h5 class="fw-bold text-white mb-0" id="sectionTitle">
+                            <i class="fa-solid fa-list-check text-info me-2"></i>Select a Topic
+                        </h5>
+                        <span class="badge badge-counter px-3 py-2" id="itemCount">0 Formulas</span>
+                    </div>
+
+                    <!-- Scrollable Container for Formulas -->
+                    <div class="scroll-area" id="contentArea">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- JavaScript Engine -->
+    <script>
+        const syllabusData = {
+            quadratics: {
+                name: "1. වර්ගජ සමීකරණ (Quadratic Equations)",
+                items: [
+                    { title: "වර්ගජ සමීකරණයක මුල සෙවීම", math: "ax^2 + bx + c = 0 \\implies x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}", desc: "මූල සෙවීමේ සම්මත සූත්‍රය" },
+                    { title: "මූලයන්ගේ එකතුව සහ ගුණිතය", math: "\\alpha + \\beta = -\\frac{b}{a}, \\quad \\alpha\\beta = \\frac{c}{a}", desc: "මූල $\\alpha, \\beta$ වන විට" },
+                    { title: "මූලයන්ගෙන් සමීකරණය තැනීම", math: "x^2 - (\\alpha + \\beta)x + \\alpha\\beta = 0", desc: "ලැබුණු මූලයන් මගින් වර්ගජ සමීකරණය ගොඩනැගීම" },
+                    { title: "විවේචකය (Discriminant)", math: "\\Delta = b^2 - 4ac", desc: "\\Delta > 0 \\text{ (තාත්වික වෙනස්)}, \\Delta = 0 \\text{ (තාත්වික සමාන)}, \\Delta < 0 \\text{ (සංකීර්ණ)}" },
+                    { title: "මූලයන්ගේ අන්තරයේ වර්ගය", math: "(\\alpha - \\beta)^2 = (\\alpha + \\beta)^2 - 4\\alpha\\beta = \\frac{b^2 - 4ac}{a^2}", desc: "මූලයන් අතර අන්තරය සෙවීම" },
+                    { title: "මූලයන්ගේ ඝනවල එකතුව", math: "\\alpha^3 + \\beta^3 = (\\alpha + \\beta)^3 - 3\\alpha\\beta(\\alpha + \\beta)", desc: "ඝන එකතුවේ අගය" }
+                ]
+            },
+            progression: {
+                name: "2. ශ්‍රේඪි (Progressions & Series)",
+                items: [
+                    { title: "සමානන්තර ශ්‍රේඪි (AP) $n$ වන පදය", math: "T_n = a + (n-1)d", desc: "$a =$ මුල් පදය, $d =$ පොදු වෙනස" },
+                    { title: "සමානන්තර ශ්‍රේඪි මුල් පද $n$ වල එකතුව", math: "S_n = \\frac{n}{2}[2a + (n-1)d] = \\frac{n}{2}[a + l]", desc: "$l =$ අවසාන පදය" },
+                    { title: "ගුණෝත්තර ශ්‍රේඪි (GP) $n$ වන පදය", math: "T_n = a r^{n-1}", desc: "$r =$ පොදු අනුපාතය" },
+                    { title: "ගුණෝත්තර ශ්‍රේඪි මුල් පද $n$ වල එකතුව", math: "S_n = \\frac{a(r^n - 1)}{r - 1} \\quad (r > 1), \\quad S_n = \\frac{a(1 - r^n)}{1 - r} \\quad (r < 1)", desc: "පොදු අනුපාතය මත පදනම්ව" },
+                    { title: "අනන්තයට එකතුව ($S_\\infty$)", math: "S_\\infty = \\frac{a}{1 - r} \\quad (|r| < 1)", desc: "අනන්ත ගුණෝත්තර ශ්‍රේඪියක එකතුව" },
+                    { title: "ස්වාභාවික සංඛ්‍යාවල එකතුව", math: "\\sum_{r=1}^n r = \\frac{n(n+1)}{2}", desc: "මුල් ස්වාභාවික සංඛ්‍යා $n$ වල එකතුව" },
+                    { title: "ස්වාභාවික සංඛ්‍යාවල වර්ගවල එකතුව", math: "\\sum_{r=1}^n r^2 = \\frac{n(n+1)(2n+1)}{6}", desc: "වර්ගවල එකතුව" },
+                    { title: "ස්වාභාවික සංඛ්‍යාවල ඝනවල එකතුව", math: "\\sum_{r=1}^n r^3 = \\left[\\frac{n(n+1)}{2}\\right]^2", desc: "ඝනවල එකතුව" }
+                ]
+            },
+            complex: {
+                name: "3. සංකීර්ණ සංඛ්‍යා (Complex Numbers)",
+                items: [
+                    { title: "කාටීසියන් ආකාරය", math: "z = x + iy \\quad (x, y \\in \\mathbb{R}, i = \\sqrt{-1})", desc: "තත්වික සහ කාල්පනික කොටස්" },
+                    { title: "මාපාංකය (Modulus)", math: "|z| = r = \\sqrt{x^2 + y^2}", desc: "සංකීර්ණ සංඛ්‍යාවේ මාපාංකය" },
+                    { title: "සංයුග්මය (Conjugate)", math: "\\bar{z} = x - iy, \\quad z \\bar{z} = |z|^2", desc: "සංකීර්ණ සංයුග්මය" },
+                    { title: "ධ්‍රුවීය ආකාරය (Polar Form)", math: "z = r(\\cos\\theta + i\\sin\\theta) \\quad (\\text{Arg}(z) = \\theta)", desc: "$-\\pi < \\theta \\le \\pi$ ප්‍රධාන විස්තාරය" },
+                    { title: "ද මෝවර් ප්‍රමේයය (De Moivre's Theorem)", math: "(\\cos\\theta + i\\sin\\theta)^n = \\cos(n\\theta) + i\\sin(n\\theta) \\quad (n \\in \\mathbb{Z})", desc: "ද මෝවර් ප්‍රමේයය" }
+                ]
+            },
+            trig: {
+                name: "4. ත්‍රිකෝණමිතිය (Trigonometry)",
+                items: [
+                    { title: "මූලික සර්වසාම්‍ය", math: "\\sin^2\\theta + \\cos^2\\theta = 1, \\quad 1 + \\tan^2\\theta = \\sec^2\\theta, \\quad 1 + \\cot^2\\theta = \\csc^2\\theta", desc: "ත්‍රිකෝණමිතික මූලික සම්බන්ධතා" },
+                    { title: "සංයුක්ත කෝණ සයින්", math: "\\sin(A \\pm B) = \\sin A \\cos B \\pm \\cos A \\sin B", desc: "සයින් සංයුක්ත කෝණ" },
+                    { title: "සංයුක්ත කෝණ කොසයින්", math: "\\cos(A \\pm B) = \\cos A \\cos B \\mp \\sin A \\sin B", desc: "කොසයින් සංයුක්ත කෝණ" },
+                    { title: "සංයුක්ත කෝණ ටැංජන", math: "\\tan(A \\pm B) = \\frac{\\tan A \\pm \\tan B}{1 \\mp \\tan A \\tan B}", desc: "ටැංජන සංයුක්ත කෝණ" },
+                    { title: "දෙගුණ කෝණ සයින්", math: "\\sin 2A = 2\\sin A \\cos A = \\frac{2\\tan A}{1+\\tan^2 A}", desc: "සයින් දෙගුණ කෝණ සූත්‍ර" },
+                    { title: "දෙගුණ කෝණ කොසයින්", math: "\\cos 2A = \\cos^2 A - \\sin^2 A = 2\\cos^2 A - 1 = 1 - 2\\sin^2 A", desc: "කොසයින් දෙගුණ කෝණ ආකෘති" },
+                    { title: "තුන්ගුණ කෝණ සූත්‍ර", math: "\\sin 3A = 3\\sin A - 4\\sin^3 A, \\quad \\cos 3A = 4\\cos^3 A - 3\\cos A", desc: "තෙගුණ කෝණ" },
+                    { title: "ගුණිත එකතුවට හැරවීම", math: "2\\sin A \\cos B = \\sin(A+B) + \\sin(A-B)", desc: "ගුණිත එකතුවට හැරවීම" },
+                    { title: "එකතුව ගුණිතයට හැරවීම", math: "\\sin C + \\sin D = 2\\sin\\left(\\frac{C+D}{2}\\right)\\cos\\left(\\frac{C-D}{2}\\right)", desc: "එකතුව ගුණිතයට හැරවීම" },
+                    { title: "සයින් නියමය (Sine Rule)", math: "\\frac{a}{\\sin A} = \\frac{b}{\\sin B} = \\frac{c}{\\sin C} = 2R", desc: "$R =$ පරිවෘත්ත අරය" },
+                    { title: "කොසයින් නියමය (Cosine Rule)", math: "a^2 = b^2 + c^2 - 2bc \\cos A", desc: "ත්‍රිකෝණයක පාද සහ කෝණ අතර සම්බන්ධය" },
+                    { title: "වර්ගඵල සූත්‍රය", math: "\\Delta = \\frac{1}{2}bc \\sin A = \\frac{1}{2}ca \\sin B = \\frac{1}{2}ab \\sin C", desc: "ත්‍රිකෝණයක වර්ගඵලය" }
+                ]
+            },
+            limits: {
+                name: "5. සීමා (Limits)",
+                items: [
+                    { title: "විශේෂ සීමා සම්මත ප්‍රමේයය 1", math: "\\lim_{x \\to 0} \\frac{\\sin x}{x} = 1 \\quad (x \\text{ රේඩියන්වලින්})", desc: "ත්‍රිකෝණමිතික මූලික සීමාව" },
+                    { title: "විශේෂ සීමා සම්මත ප්‍රමේයය 2", math: "\\lim_{x \\to a} \\frac{x^n - a^n}{x - a} = n a^{n-1}", desc: "බල ශ්‍රිත සඳහා සීමාව" },
+                    { title: "ටැංජන සීමාව", math: "\\lim_{x \\to 0} \\frac{\\tan x}{x} = 1", desc: "ටැංජන සීමාව" }
+                ]
+            },
+            diff: {
+                name: "6. අවකලනය (Differentiation)",
+                items: [
+                    { title: "බල ශ්‍රිත අවකලනය", math: "\\frac{d}{dx}(x^n) = n x^{n-1}", desc: "Power Rule" },
+                    { title: "ගුණිත න්‍යාය (Product Rule)", math: "\\frac{d}{dx}(uv) = u\\frac{dv}{dx} + v\\frac{du}{dx}", desc: "ශ්‍රිත ගුණිතයක අවකලනය" },
+                    { title: "බෙදීම් න්‍යාය (Quotient Rule)", math: "\\frac{d}{dx}\\left(\\frac{u}{v}\\right) = \\frac{v\\frac{du}{dx} - u\\frac{dv}{dx}}{v^2}", desc: "ශ්‍රිත බෙදීමක අවකලනය" },
+                    { title: "දාම න්‍යාය (Chain Rule)", math: "\\frac{dy}{dx} = \\frac{dy}{du} \\cdot \\frac{du}{dx}", desc: "සංයුක්ත ශ්‍රිත අවකලනය" },
+                    { title: "ත්‍රිකෝණමිතික අවකලනය", math: "\\frac{d}{dx}(\\sin x) = \\cos x, \\quad \\frac{d}{dx}(\\cos x) = -\\sin x, \\quad \\frac{d}{dx}(\\tan x) = \\sec^2 x", desc: "Trig Derivatives" },
+                    { title: "ඝාතීය හා ලඝුගණක අවකලනය", math: "\\frac{d}{dx}(e^{ax}) = a e^{ax}, \\quad \\frac{d}{dx}(\\ln x) = \\frac{1}{x}", desc: "Exponential & Logarithmic Derivatives" },
+                    { title: "ප්‍රතිලෝම ත්‍රිකෝණමිතික අවකලනය", math: "\\frac{d}{dx}(\\sin^{-1} x) = \\frac{1}{\\sqrt{1-x^2}}, \\quad \\frac{d}{dx}(\\tan^{-1} x) = \\frac{1}{1+x^2}", desc: "Inverse Trig Derivatives" }
+                ]
+            },
+            integ: {
+                name: "7. අනුකලනය (Integration)",
+                items: [
+                    { title: "මූලික බල අනුකලනය", math: "\\int x^n dx = \\frac{x^{n+1}}{n+1} + C \\quad (n \\neq -1)", desc: "Power Integration" },
+                    { title: "ලඝුගණක අනුකලනය", math: "\\int \\frac{1}{x} dx = \\ln|x| + C", desc: "Logarithmic Integration" },
+                    { title: "ඝාතීය අනුකලනය", math: "\\int e^{ax} dx = \\frac{1}{a} e^{ax} + C", desc: "Exponential Integration" },
+                    { title: "ත්‍රිකෝණමිතික අනුකලනය", math: "\\int \\sin(ax) dx = -\\frac{1}{a}\\cos(ax) + C, \\quad \\int \\cos(ax) dx = \\frac{1}{a}\\sin(ax) + C", desc: "Trig Integrals" },
+                    { title: "සීකන්ට් වර්ග අනුකලනය", math: "\\int \\sec^2(ax) dx = \\frac{1}{a}\\tan(ax) + C", desc: "Secant Squared Integral" },
+                    { title: "කොටස් වශයෙන් අනුකලනය", math: "\\int u \\frac{dv}{dx} dx = uv - \\int v \\frac{du}{dx} dx", desc: "Integration by Parts" },
+                    { title: "විශේෂ භාග අනුකලන 1", math: "\\int \\frac{1}{x^2 + a^2} dx = \\frac{1}{a} \\tan^{-1}\\left(\\frac{x}{a}\\right) + C", desc: "Standard Integral Form 1" },
+                    { title: "විශේෂ භාග අනුකලන 2", math: "\\int \\frac{1}{\\sqrt{a^2 - x^2}} dx = \\sin^{-1}\\left(\\frac{x}{a}\\right) + C", desc: "Standard Integral Form 2" }
+                ]
+            },
+            geometry: {
+                name: "8. සරල රේඛාව සහ වෘත්තය (Straight Line & Circle)",
+                items: [
+                    { title: "ලක්ෂ්‍ය දෙකක් අතර දුර", math: "d = \\sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}", desc: "Cartesian ඛණ්ඩාංක අතර දුර" },
+                    { title: "ලක්ෂ්‍යයක සිට රේඛාවකට ලම්බ දුර", math: "p = \\frac{|ax_1 + by_1 + c|}{\\sqrt{a^2 + b^2}}", desc: "$(x_1, y_1)$ සිට $ax+by+c=0$ ට ලම්බ දුර" },
+                    { title: "රේඛා දෙකක් අතර කෝණය", math: "\\tan\\theta = \\left| \\frac{m_1 - m_2}{1 + m_1 m_2} \\right|", desc: "අනුක්‍රමණ $m_1, m_2$ වන රේඛා දෙකක් අතර කෝණය" },
+                    { title: "වෘත්තයේ සම්මත සමීකරණය", math: "(x - h)^2 + (y - k)^2 = r^2", desc: "කේන්ද්‍රය $(h,k)$ සහ අරය $r$" },
+                    { title: "වෘත්තයේ පොදු සමීකරණය", math: "x^2 + y^2 + 2gx + 2fy + c = 0", desc: "කේන්ද්‍රය $(-g, -f)$, අරය $r = \\sqrt{g^2 + f^2 - c}$" },
+                    { title: "වෘත්තයකට ඇඳි ස්පර්ශක සමීකරණය", math: "xx_1 + yy_1 + g(x + x_1) + f(y + y_1) + c = 0", desc: "වෘත්තය මත $(x_1, y_1)$ ලක්ෂ්‍යයේදී" }
+                ]
+            },
+            vectors: {
+                name: "9. දෛශික (Vectors)",
+                items: [
+                    { title: "අදිශ ගුණිතය (Dot Product)", math: "\\mathbf{a} \\cdot \\mathbf{b} = |\\mathbf{a}||\\mathbf{b}| \\cos\\theta = a_x b_x + a_y b_y + a_z b_z", desc: "Scalar Product" },
+                    { title: "දෛශික ගුණිතය (Cross Product)", math: "\\mathbf{a} \\times \\mathbf{b} = |\\mathbf{a}||\\mathbf{b}| \\sin\\theta \\hat{\\mathbf{n}}", desc: "Vector Product" },
+                    { title: "ලම්බතාවය සඳහා කොන්දේසිය", math: "\\mathbf{a} \\cdot \\mathbf{b} = 0 \\quad (\\mathbf{a}, \\mathbf{b} \\neq \\mathbf{0})", desc: "දෛශික දෙකක් ලම්බක වීමට" },
+                    { title: "සමාන්තරතාවය සඳහා කොන්දේසිය", math: "\\mathbf{a} \\times \\mathbf{b} = \\mathbf{0} \\iff \\mathbf{a} = k\\mathbf{b}", desc: "දෛශිකදෙකක් සමාන්තර වීමට" }
+                ]
+            },
+            rectilinear: {
+                name: "10. සෘජු රේඛීය චලිතය (Rectilinear Motion)",
+                items: [
+                    { title: "චලිත සමීකරණ 1", math: "v = u + at", desc: "$u=$ ආරම්භක ප්‍රවේගය, $v=$ අවසාන ප්‍රවේගය" },
+                    { title: "චලිත සමීකරණ 2", math: "s = ut + \\frac{1}{2}at^2", desc: "$s=$ විස්ථාපනය, $a=$ නියත ත්වරණය" },
+                    { title: "චලිත සමීකරණ 3", math: "v^2 = u^2 + 2as", desc: "කාලයෙන් ස්වායත්ත සමීකරණය" },
+                    { title: "චලිත සමීකරණ 4", math: "s = \\left(\\frac{u+v}{2}\\right)t", desc: "මධ්‍යන්‍ය ප්‍රවේගය භාවිතයෙන්" }
+                ]
+            },
+            projectiles: {
+                name: "11. ප්‍රක්ෂේප්‍ය (Projectiles)",
+                items: [
+                    { title: "උපරිම උසට ගතවන කාලය", math: "t = \\frac{u \\sin\\alpha}{g}", desc: "උපරිම උසට ළඟාවීමට ගතවන කාලය" },
+                    { title: "මුළු ඉගිලීම් කාලය", math: "T = \\frac{2u \\sin\\alpha}{g}", desc: "ආපසු තිරස් තලයට පතිත වීමට ගතවන කාලය" },
+                    { title: "උපරිම උස ($H$)", math: "H = \\frac{u^2 \\sin^2\\alpha}{2g}", desc: "ප්‍රක්ෂේපණය වන උපරිම සිරස් උස" },
+                    { title: "තිරස් පරාසය ($R$)", math: "R = \\frac{u^2 \\sin 2\\alpha}{g}", desc: "තිරස් තලය මත ගමන් කරන මුළු දුර" },
+                    { title: "පථයේ සමීකරණය", math: "y = x \\tan\\alpha - \\frac{gx^2}{2u^2 \\cos^2\\alpha} = x \\tan\\alpha \\left(1 - \\frac{x}{R}\\right)", desc: "ප්‍රක්ෂේපණ පථයේ සමීකරණය" }
+                ]
+            },
+            statics: {
+                name: "12. ස්ථිති විද්‍යාව (Statics)",
+                items: [
+                    { title: "ලැමීගේ ප්‍රමේයය (Lami's Theorem)", math: "\\frac{P}{\\sin\\alpha} = \\frac{Q}{\\sin\\beta} = \\frac{R}{\\sin\\gamma}", desc: "සමතුලිත බල 3ක් සඳහා" },
+                    { title: "සීමාකාරී ඝර්ෂණය (Limiting Friction)", math: "F_{max} = \\mu R", desc: "$\\mu =$ ඝර්ෂණ සංගුණකය, $R =$ අභිලම්බ ප්‍රතික්‍රියාව" },
+                    { title: "ඝර්ෂණ කෝණය (Angle of Friction)", math: "\\tan \\lambda = \\mu", desc: "$\\lambda =$ ඝර්ෂණ කෝණය" },
+                    { title: "වරිග්නොන්ගේ ප්‍රමේයය (Varignon's Theorem)", math: "\\text{Moment of } \\mathbf{R} = \\text{Moment of } \\mathbf{P} + \\text{Moment of } \\mathbf{Q}", desc: "ඝූර්ණ පිළිබඳ ප්‍රමේයය" }
+                ]
+            },
+            centerofmass: {
+                name: "13. ගුරුත්ව කේන්ද්‍රය (Center of Mass)",
+                items: [
+                    { title: "ඒකාකාර සෘජු කම්බිය", math: "\\bar{x} = \\frac{L}{2}", desc: "මධ්‍ය ලක්ෂ්‍යයේ පිහිටයි" },
+                    { title: "ඒකාකාර ත්‍රිකෝණාකාර තහඩුව", math: "\\text{මාධ්‍යස්ථවල ඡේදනය මත}", desc: "ශීර්ෂයේ සිට $2:1$ අනුපාතයට" },
+                    { title: "ඒකාකාර අර්ධ වෘත්තාකාර කම්බිය", math: "\\bar{x} = \\frac{2r}{\\pi}", desc: "කේන්ද්‍රයේ සිට අක්ෂය ඔස්සේ" },
+                    { title: "ඒකාකාර අර්ධ වෘත්තාකාර තහඩුව", math: "\\bar{x} = \\frac{4r}{3\\pi}", desc: "කේන්ද්‍රයේ සිට අක්ෂය ඔස්සේ" },
+                    { title: "ඒකාකාර වෘත්තාකාර චාපය", math: "\\bar{x} = \\frac{r \\sin\\alpha}{\\alpha}", desc: "කේන්ද්‍ර කෝණය $2\\alpha$ වන විට" },
+                    { title: "ඒකාකාර වෘත්තාකාර කේන්ද්‍රික ඛණ්ඩය", math: "\\bar{x} = \\frac{2r \\sin\\alpha}{3\\alpha}", desc: "කේන්ද්‍ර කෝණය $2\\alpha$ වන තහඩුව" },
+                    { title: "හිස් අර්ධ ගෝලීය කබොල්ල", math: "\\bar{x} = \\frac{r}{2}", desc: "කේන්ද්‍රයේ සිට පදම ඔස්සේ" },
+                    { title: "ඝන අර්ධ ගෝලය", math: "\\bar{x} = \\frac{3r}{8}", desc: "කේන්ද්‍රයේ සිට පදම ඔස්සේ" },
+                    { title: "හිස් කේතුව", math: "\\bar{x} = \\frac{h}{3}", desc: "පදමයේ සිට අක්ෂය ඔස්සේ" },
+                    { title: "ඝන කේතුව", math: "\\bar{x} = \\frac{h}{4}", desc: "පදමයේ සිට අක්ෂය ඔස්සේ" }
+                ]
+            },
+            shm: {
+                name: "14. සරල අනුවර්තී චලිතය (Simple Harmonic Motion)",
+                items: [
+                    { title: "SHM මූලික සමීකරණය", math: "\\ddot{x} = -\\omega^2 x", desc: "ත්වරණය සහ විස්ථාපනය අතර සම්බන්ධය" },
+                    { title: "ප්‍රවේග සමීකරණය", math: "v^2 = \\omega^2 (a^2 - x^2)", desc: "$a =$ විස්තාරය, $x =$ විස්ථාපනය" },
+                    { title: "විස්ථාපන සමීකරණය", math: "x = a \\sin(\\omega t + \\alpha) \\quad \\text{හෝ} \\quad x = a \\cos(\\omega t + \\alpha)", desc: "කාලය සමග විස්ථාපනය" },
+                    { title: "ආවර්ත කාලය ($T$)", math: "T = \\frac{2\\pi}{\\omega}", desc: "එක් පූර්ණ දෝලනයකට ගතවන කාලය" },
+                    { title: "හූක්ගේ නියමය (Hooke's Law)", math: "T = \\frac{\\lambda x}{l}", desc: "තන්තුවක/දුන්නක ආතතිය ($\\lambda =$ ප්‍රත්‍යාස්ථතා මාපාංකය)" }
+                ]
+            },
+            probability: {
+                name: "15. සම්භාවිතාව සහ සංඛ්‍යානය (Probability & Statistics)",
+                items: [
+                    { title: "සම්භාවිතාවේ එකතු කිරීමේ නියමය", math: "P(A \\cup B) = P(A) + P(B) - P(A \\cap B)", desc: "ඕනෑම සිද්ධි දෙකක් සඳහා" },
+                    { title: "නිදහස් සිද්ධි (Independent Events)", math: "P(A \\cap B) = P(A) \\cdot P(B)", desc: "A සහ B නිදහස් සිද්ධි වන විට" },
+                    { title: "කොන්දේසි සහිත සම්භාවිතාව", math: "P(A|B) = \\frac{P(A \\cap B)}{P(B)} \\quad (P(B) > 0)", desc: "B සිදුවී ඇති විට A සිදුවීමේ සම්භාවිතාව" },
+                    { title: "මධ්‍යන්‍යය (Mean)", math: "\\bar{x} = \\frac{\\sum x_i}{n} = \\frac{\\sum f_i x_i}{\\sum f_i}", desc: "දත්ත සමූහයක මධ්‍යන්‍යය" },
+                    { title: "විචලතාව (Variance)", math: "\\sigma^2 = \\frac{\\sum (x_i - \\bar{x})^2}{n} = \\frac{\\sum x_i^2}{n} - (\\bar{x})^2", desc: "දත්තවල විචලතාව" },
+                    { title: "සම්මත අපගමනය (Standard Deviation)", math: "\\sigma = \\sqrt{\\text{Variance}} = \\sqrt{\\frac{\\sum x_i^2}{n} - (\\bar{x})^2}", desc: "සම්මත අපගමනය" }
+                ]
+            }
+        };
+
+        let currentCategory = 'quadratics';
+
+        function initCategoryMenu() {
+            const menuContainer = document.getElementById('topicList');
+            menuContainer.innerHTML = '';
+            
+            const keys = Object.keys(syllabusData);
+            document.getElementById('totalTopicsCount').innerText = keys.length;
+
+            keys.forEach((key, index) => {
+                const item = syllabusData[key];
+                const btn = document.createElement('button');
+                btn.className = `topic-btn ${index === 0 ? 'active' : ''}`;
+                btn.innerHTML = `
+                    <span class="flex-grow-1">${item.name}</span>
+                    <i class="fa-solid fa-chevron-right ms-2"></i>
+                `;
+                btn.onclick = () => switchTopic(key, btn);
+                menuContainer.appendChild(btn);
+            });
+        }
+
+        function switchTopic(key, btnElement) {
+            currentCategory = key;
+            const buttons = document.querySelectorAll('.topic-btn');
+            buttons.forEach(b => b.classList.remove('active'));
+            if(btnElement) btnElement.classList.add('active');
+
+            renderFormulas();
+        }
+
+        function renderFormulas(filterQuery = "") {
+            const container = document.getElementById('contentArea');
+            container.innerHTML = '';
+
+            const topic = syllabusData[currentCategory];
+            document.getElementById('sectionTitle').innerHTML = `<i class="fa-solid fa-book-open text-info me-2"></i>${topic.name}`;
+
+            let list = topic.items;
+
+            if(filterQuery.trim() !== "") {
+                list = list.filter(item => 
+                    item.title.toLowerCase().includes(filterQuery.toLowerCase()) ||
+                    item.desc.toLowerCase().includes(filterQuery.toLowerCase())
+                );
+            }
+
+            document.getElementById('itemCount').innerText = `${list.length} Formulas`;
+
+            if(list.length === 0) {
+                container.innerHTML = `<div class="text-center text-warning my-5 fs-5"><i class="fa-solid fa-triangle-exclamation me-2"></i>සූත්‍ර කිසිවක් හමු නොවීය!</div>`;
+                return;
+            }
+
+            list.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'formula-card';
+                card.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                        <h6 class="fw-bold mb-0">${item.title}</h6>
+                        <span class="formula-desc">${item.desc}</span>
+                    </div>
+                    <div class="math-box my-2 overflow-x-auto">
+                        $$${item.math}$$
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                MathJax.typesetPromise();
+            }
+        }
+
+        function filterFormulas() {
+            const query = document.getElementById('searchInput').value;
+            renderFormulas(query);
+        }
+
+        window.onload = () => {
+            initCategoryMenu();
+            renderFormulas();
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

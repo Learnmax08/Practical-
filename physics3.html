@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A/L Physics Live Projectile Simulator</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for V-T Graph -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --bg-dark: #0a0e17;
+            --card-bg: rgba(18, 26, 41, 0.9);
+            --border-color: rgba(0, 242, 254, 0.25);
+            --neon-blue: #00f2fe;
+            --neon-green: #00ff88;
+            --neon-amber: #ffb703;
+            --neon-pink: #ff0055;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #e2e8f0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(16px);
+            border-radius: 16px;
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6);
+        }
+
+        .glow-title {
+            text-shadow: 0 0 12px rgba(0, 242, 254, 0.6);
+        }
+
+        .canvas-container {
+            background: radial-gradient(circle at center, #111927 0%, #070a10 100%);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.15);
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 420px;
+        }
+
+        .form-control-cyber {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border-color);
+            color: #fff;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .form-control-cyber:focus {
+            background: rgba(15, 23, 42, 0.95);
+            border-color: var(--neon-blue);
+            color: #fff;
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.4);
+        }
+
+        .form-range::-webkit-slider-thumb {
+            background: var(--neon-blue);
+            box-shadow: 0 0 12px var(--neon-blue);
+        }
+
+        .object-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .object-btn:hover, .object-btn.active {
+            background: rgba(0, 242, 254, 0.15);
+            border-color: var(--neon-blue);
+            color: #fff;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+        }
+
+        .metric-box {
+            background: rgba(10, 15, 26, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #94a3b8;
+        }
+
+        .metric-val {
+            font-size: 1.15rem;
+            font-weight: 700;
+        }
+
+        /* Evaluation card styling */
+        .eval-box {
+            border-left: 4px solid var(--neon-blue);
+            background: rgba(0, 242, 254, 0.05);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <nav class="navbar navbar-dark border-bottom border-secondary py-3" style="background: #070a10;">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold text-info glow-title fs-4" href="#">
+                <i class="fa-solid fa-atom me-2"></i>NEXUS PHYSICS LAB <span class="fs-6 text-muted">| Animated Projectile Simulator</span>
+            </a>
+            <span class="badge bg-primary bg-opacity-20 border border-primary text-info px-3 py-2">G.C.E. A/L Mechanics Practical</span>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4 my-4">
+        <div class="row g-4">
+            
+            <!-- Left Panel: Object & Control Parameters -->
+            <div class="col-xl-4 col-lg-5">
+                <div class="glass-card p-4">
+                    <h5 class="fw-bold text-white mb-3"><i class="fa-solid fa-cubes me-2 text-info"></i>1. වස්තුව තෝරන්න (Select Object)</h5>
+                    <div class="row g-2 mb-4" id="objectSelector">
+                        <div class="col-4">
+                            <button class="btn object-btn w-100 p-2 text-center active" data-type="stone">
+                                <i class="fa-solid fa-gem fs-4 mb-1 text-warning"></i><br><small>Stone (ගල් කැටය)</small>
+                            </button>
+                        </div>
+                        <div class="col-4">
+                            <button class="btn object-btn w-100 p-2 text-center" data-type="ball">
+                                <i class="fa-solid fa-futbol fs-4 mb-1 text-info"></i><br><small>Football</small>
+                            </button>
+                        </div>
+                        <div class="col-4">
+                            <button class="btn object-btn w-100 p-2 text-center" data-type="cannon">
+                                <i class="fa-solid fa-bowling-ball fs-4 mb-1 text-danger"></i><br><small>Cannonball</small>
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn object-btn w-100 p-2 text-center" data-type="tt">
+                                <i class="fa-solid fa-table-tennis-paddle-ball fs-4 mb-1 text-success"></i><br><small>TT Ball (අඩු ස්කන්ධය)</small>
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn object-btn w-100 p-2 text-center" data-type="custom">
+                                <i class="fa-solid fa-sliders fs-4 mb-1 text-primary"></i><br><small>Custom Input</small>
+                            </button>
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold text-white mb-3"><i class="fa-solid fa-sliders me-2 text-info"></i>2. චලිත පරාමිතීන් (Motion Parameters)</h5>
+                    
+                    <!-- Angle -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label text-white small mb-0 fw-bold">විදීම් කෝණය ($\theta$):</label>
+                            <input type="number" id="thetaNum" class="form-control form-control-cyber form-control-sm" value="50" min="5" max="85" style="width: 70px;">
+                        </div>
+                        <input type="range" class="form-range" id="thetaRange" min="5" max="85" value="50">
+                    </div>
+
+                    <!-- Initial Velocity -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label text-white small mb-0 fw-bold">ආරම්භක ප්‍රවේගය ($u$ - m/s):</label>
+                            <input type="number" id="uNum" class="form-control form-control-cyber form-control-sm" value="30" min="5" max="100" style="width: 70px;">
+                        </div>
+                        <input type="range" class="form-range" id="uRange" min="5" max="100" value="30">
+                    </div>
+
+                    <!-- Mass -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label text-white small mb-0 fw-bold">ස්කන්ධය ($m$ - kg):</label>
+                            <input type="number" id="mNum" class="form-control form-control-cyber form-control-sm" value="0.15" step="0.01" style="width: 80px;">
+                        </div>
+                        <input type="range" class="form-range" id="mRange" min="0.01" max="10" step="0.01" value="0.15">
+                    </div>
+
+                    <!-- Gravity -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label text-white small mb-0 fw-bold">ගුරුත්වජ ත්වරණය ($g$ - m/s²):</label>
+                            <input type="number" id="gNum" class="form-control form-control-cyber form-control-sm" value="9.8" step="0.1" style="width: 70px;">
+                        </div>
+                        <input type="range" class="form-range" id="gRange" min="1.6" max="25" step="0.1" value="9.8">
+                    </div>
+
+                    <!-- Air Resistance Switch -->
+                    <div class="p-3 bg-dark bg-opacity-50 rounded border border-secondary mb-3">
+                        <div class="form-check form-switch mb-0">
+                            <input class="form-check-input" type="checkbox" id="airResToggle">
+                            <label class="form-check-label fw-bold text-white small" for="airResToggle">
+                                වායු ප්‍රතිරෝධය සක්‍රිය කරන්න (Air Drag)
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Launch Controls -->
+                    <div class="row g-2">
+                        <div class="col-7">
+                            <button id="launchBtn" class="btn btn-info w-100 fw-bold py-2 shadow-lg"><i class="fa-solid fa-play me-2"></i>FIRE / LAUNCH</button>
+                        </div>
+                        <div class="col-5">
+                            <button id="resetBtn" class="btn btn-outline-secondary w-100 fw-bold py-2"><i class="fa-solid fa-rotate me-1"></i>Reset</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Live Animation Canvas Screen -->
+            <div class="col-xl-8 col-lg-7">
+                
+                <div class="glass-card p-3 mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="fw-bold text-info mb-0"><i class="fa-solid fa-display me-2"></i>Live Motion Simulation</h6>
+                        <div>
+                            <span class="badge bg-info bg-opacity-20 text-info border border-info me-2">● Real-time Ball Position</span>
+                        </div>
+                    </div>
+                    
+                    <div class="canvas-container">
+                        <canvas id="mainCanvas" width="800" height="420"></canvas>
+                    </div>
+                </div>
+
+                <!-- Live Metrics -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3 col-6">
+                        <div class="metric-box text-center">
+                            <div class="metric-label">ගමන් කළ දුර ($X$)</div>
+                            <div class="metric-val text-info" id="liveX">0.0 m</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="metric-box text-center">
+                            <div class="metric-label">පවතින උස ($Y$)</div>
+                            <div class="metric-val text-warning" id="liveY">0.0 m</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="metric-box text-center">
+                            <div class="metric-label">ගතවූ කාලය ($t$)</div>
+                            <div class="metric-val text-success" id="liveTime">0.00 s</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="metric-box text-center">
+                            <div class="metric-label">ගණනය කළ පරාසය ($R$)</div>
+                            <div class="metric-val text-danger" id="calcRange">0.0 m</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NEW ADDITION 1: Real-time V-T Graph -->
+                <div class="glass-card p-3 mb-4">
+                    <h6 class="fw-bold text-info mb-3"><i class="fa-solid fa-chart-line me-2"></i>ප්‍රවේග - කාල ($v-t$) ප්‍රස්ථාරය</h6>
+                    <div style="height: 220px; width: 100%;">
+                        <canvas id="vtChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- NEW ADDITION 2: Student Performance Evaluation Box -->
+                <div class="glass-card p-3 mb-4 eval-box">
+                    <h6 class="fw-bold text-warning mb-2"><i class="fa-solid fa-award me-2"></i>ශිෂ්‍ය ඇගයීම හා විෂ්ලේෂණය (Performance Evaluation)</h6>
+                    <div id="evalContent" class="small text-slate-300">
+                        විදීම ආරම්භ කිරීමට <strong>FIRE / LAUNCH</strong> බොත්තම ඔබන්න. චලිතය අවසන් වූ පසු ඔබ ලබාගත් ප්‍රතිඵලය විශ්ලේෂණය කරනු ලැබේ.
+                    </div>
+                </div>
+
+                <!-- Theory Formulas Box -->
+                <div class="glass-card p-3">
+                    <h6 class="fw-bold text-white mb-2"><i class="fa-solid fa-square-root-variable text-info me-2"></i>A/L Theory Formulas Summary</h6>
+                    <div class="row text-center small text-slate-300 py-1">
+                        <div class="col-md-4 border-end border-secondary">
+                            <strong>Horizontal Velocity:</strong><br> $v_x = u \cos\theta$
+                        </div>
+                        <div class="col-md-4 border-end border-secondary">
+                            <strong>Vertical Velocity:</strong><br> $v_y = u \sin\theta - gt$
+                        </div>
+                        <div class="col-md-4">
+                            <strong>Theoretical Range:</strong><br> $R = \frac{u^2 \sin 2\theta}{g}$
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MathJax -->
+    <script>
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+    <!-- Simulation JavaScript Logic -->
+    <script>
+        const canvas = document.getElementById("mainCanvas");
+        const ctx = canvas.getContext("2d");
+
+        const thetaNum = document.getElementById("thetaNum");
+        const thetaRange = document.getElementById("thetaRange");
+        const uNum = document.getElementById("uNum");
+        const uRange = document.getElementById("uRange");
+        const mNum = document.getElementById("mNum");
+        const mRange = document.getElementById("mRange");
+        const gNum = document.getElementById("gNum");
+        const gRange = document.getElementById("gRange");
+        const airResToggle = document.getElementById("airResToggle");
+
+        const liveX = document.getElementById("liveX");
+        const liveY = document.getElementById("liveY");
+        const liveTime = document.getElementById("liveTime");
+        const calcRange = document.getElementById("calcRange");
+        const evalContent = document.getElementById("evalContent");
+
+        // Object Configurations & Icons
+        const objectProfiles = {
+            stone: { mass: 0.15, radius: 10, color: "#94a3b8", icon: "gem", dragCoeff: 0.47, name: "Stone" },
+            ball: { mass: 0.43, radius: 14, color: "#00f2fe", icon: "futbol", dragCoeff: 0.25, name: "Football" },
+            cannon: { mass: 5.0, radius: 18, color: "#ff0055", icon: "bowling-ball", dragCoeff: 0.30, name: "Cannonball" },
+            tt: { mass: 0.0027, radius: 8, color: "#00ff88", icon: "table-tennis-paddle-ball", dragCoeff: 0.50, name: "TT Ball" },
+            custom: { mass: 1.0, radius: 12, color: "#ffb703", icon: "circle", dragCoeff: 0.35, name: "Custom" }
+        };
+
+        let currentProfile = objectProfiles.stone;
+
+        // Synchronize inputs
+        function syncInput(num, range) {
+            num.addEventListener("input", () => { range.value = num.value; resetSimulation(); });
+            range.addEventListener("input", () => { num.value = range.value; resetSimulation(); });
+        }
+
+        syncInput(thetaNum, thetaRange);
+        syncInput(uNum, uRange);
+        syncInput(mNum, mRange);
+        syncInput(gNum, gRange);
+
+        // Profile Selector
+        document.querySelectorAll("#objectSelector .object-btn").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                document.querySelectorAll("#objectSelector .object-btn").forEach(b => b.classList.remove("active"));
+                const targetBtn = e.currentTarget;
+                targetBtn.classList.add("active");
+
+                const type = targetBtn.getAttribute("data-type");
+                currentProfile = objectProfiles[type];
+
+                mNum.value = currentProfile.mass;
+                mRange.value = currentProfile.mass;
+
+                resetSimulation();
+            });
+        });
+
+        // Animation State Variables
+        let isAnimating = false;
+        let animationFrameId = null;
+        let posX = 0, posY = 0;
+        let vx = 0, vy = 0;
+        let time = 0;
+        let pathHistory = [];
+
+        // V-T Chart Initialization
+        const vtCtx = document.getElementById('vtChart').getContext('2d');
+        let vtChart = new Chart(vtCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    { label: 'තිරස් ප්‍රවේගය (Vx)', data: [], borderColor: '#00f2fe', borderWidth: 2, pointRadius: 0, fill: false },
+                    { label: 'සිරස් ප්‍රවේගය (Vy)', data: [], borderColor: '#ffb703', borderWidth: 2, pointRadius: 0, fill: false },
+                    { label: 'සම්ප්‍රයුක්ත ප්‍රවේගය (V)', data: [], borderColor: '#ff0055', borderWidth: 2, pointRadius: 0, fill: false }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { title: { display: true, text: 'කාලය (s)', color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                    y: { title: { display: true, text: 'ප්‍රවේගය (m/s)', color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }
+                },
+                plugins: { legend: { labels: { color: '#e2e8f0' } } }
+            }
+        });
+
+        function resetSimulation() {
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            isAnimating = false;
+
+            posX = 0;
+            posY = 0;
+            time = 0;
+            pathHistory = [];
+
+            // Reset V-T Graph
+            vtChart.data.labels = [];
+            vtChart.data.datasets[0].data = [];
+            vtChart.data.datasets[1].data = [];
+            vtChart.data.datasets[2].data = [];
+            vtChart.update();
+
+            let theta = parseFloat(thetaNum.value) * Math.PI / 180;
+            let u = parseFloat(uNum.value);
+            let g = parseFloat(gNum.value);
+
+            let theoreticalR = (u * u * Math.sin(2 * theta)) / g;
+            calcRange.innerText = theoreticalR.toFixed(2) + " m";
+
+            liveX.innerText = "0.0 m";
+            liveY.innerText = "0.0 m";
+            liveTime.innerText = "0.00 s";
+            evalContent.innerHTML = "විදීම ආරම්භ කිරීමට <strong>FIRE / LAUNCH</strong> බොත්තම ඔබන්න. චලිතය අවසන් වූ පසු ඔබ ලබාගත් ප්‍රතිඵලය විශ්ලේෂණය කරනු ලැබේ.";
+
+            drawStaticScene();
+        }
+
+        function drawStaticScene() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            let startX = 50;
+            let startY = 360;
+
+            // Draw Ground Line
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(20, startY);
+            ctx.lineTo(canvas.width - 20, startY);
+            ctx.stroke();
+
+            // Draw Launcher Angle Cannon / Pointer
+            let theta = parseFloat(thetaNum.value) * Math.PI / 180;
+            ctx.strokeStyle = "#00f2fe";
+            ctx.lineWidth = 6;
+            ctx.lineCap = "round";
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(startX + 40 * Math.cos(theta), startY - 40 * Math.sin(theta));
+            ctx.stroke();
+
+            // Draw Object at Launcher Position
+            drawObject(startX, startY);
+        }
+
+        function drawObject(canvasX, canvasY) {
+            ctx.fillStyle = currentProfile.color;
+            ctx.beginPath();
+            ctx.arc(canvasX, canvasY, currentProfile.radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = "#ffffff";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        function launchProjectile() {
+            resetSimulation();
+
+            let theta = parseFloat(thetaNum.value) * Math.PI / 180;
+            let u = parseFloat(uNum.value);
+
+            vx = u * Math.cos(theta);
+            vy = u * Math.sin(theta);
+            isAnimating = true;
+
+            animateStep();
+        }
+
+        function animateStep() {
+            let dt = 0.03; // Time step
+            let g = parseFloat(gNum.value);
+            let m = parseFloat(mNum.value);
+
+            if (airResToggle.checked) {
+                let area = Math.PI * Math.pow(currentProfile.radius / 100, 2);
+                let rho = 1.225;
+                let k = 0.5 * rho * currentProfile.dragCoeff * area;
+
+                let v = Math.sqrt(vx * vx + vy * vy);
+                let Fdrag_x = -k * v * vx;
+                let Fdrag_y = -k * v * vy;
+
+                let ax = Fdrag_x / m;
+                let ay = -g + (Fdrag_y / m);
+
+                posX += vx * dt;
+                posY += vy * dt;
+                vx += ax * dt;
+                vy += ay * dt;
+            } else {
+                posX += vx * dt;
+                posY += vy * dt - 0.5 * g * dt * dt;
+                vy -= g * dt;
+            }
+
+            time += dt;
+
+            // Update V-T Graph
+            let totalV = Math.sqrt(vx * vx + vy * vy);
+            vtChart.data.labels.push(time.toFixed(2));
+            vtChart.data.datasets[0].data.push(vx.toFixed(2));
+            vtChart.data.datasets[1].data.push(vy.toFixed(2));
+            vtChart.data.datasets[2].data.push(totalV.toFixed(2));
+            vtChart.update('none');
+
+            if (posY < 0) {
+                posY = 0;
+                isAnimating = false;
+                evaluatePerformance(); // Run Evaluation on completion
+            }
+
+            pathHistory.push({ x: posX, y: posY });
+
+            // Update UI Labels
+            liveX.innerText = posX.toFixed(1) + " m";
+            liveY.innerText = posY.toFixed(1) + " m";
+            liveTime.innerText = time.toFixed(2) + " s";
+
+            renderCanvas();
+
+            if (isAnimating) {
+                animationFrameId = requestAnimationFrame(animateStep);
+            }
+        }
+
+        function renderCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            let startX = 50;
+            let startY = 360;
+
+            // Scale calculations for dynamic responsiveness
+            let maxExpectedX = Math.max(100, posX * 1.2);
+            let maxExpectedY = Math.max(50, Math.max(...pathHistory.map(p => p.y)) * 1.3);
+
+            let scaleX = (canvas.width - 100) / maxExpectedX;
+            let scaleY = (canvas.height - 100) / maxExpectedY;
+
+            // Ground
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(20, startY);
+            ctx.lineTo(canvas.width - 20, startY);
+            ctx.stroke();
+
+            // Draw Path Trail
+            if (pathHistory.length > 1) {
+                ctx.strokeStyle = currentProfile.color;
+                ctx.lineWidth = 3;
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
+
+                pathHistory.forEach(pt => {
+                    ctx.lineTo(startX + pt.x * scaleX, startY - pt.y * scaleY);
+                });
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            // Current Flying Object Coordinates
+            let currentCanvasX = startX + posX * scaleX;
+            let currentCanvasY = startY - posY * scaleY;
+
+            drawObject(currentCanvasX, currentCanvasY);
+        }
+
+        // Evaluation Function
+        function evaluatePerformance() {
+            let maxH = Math.max(...pathHistory.map(p => p.y));
+            let currentTheta = parseFloat(thetaNum.value);
+            let isAirRes = airResToggle.checked;
+
+            let evalText = `<strong>චලිත විශ්ලේෂණ ප්‍රතිපෝෂණය:</strong><br>`;
+            evalText += `• <strong>ලබාගත් පරාසය (Range):</strong> ${posX.toFixed(2)} m | <strong>උපරිම උස (Max Height):</strong> ${maxH.toFixed(2)} m<br>`;
+
+            if (currentTheta === 45 && !isAirRes) {
+                evalText += `<span class="text-success"><i class="fa-solid fa-circle-check me-1"></i><strong>විශිෂ්ටයි!</strong> ඔබ $45^\circ$ කෝණය තෝරාගෙන ඇති බැවින් ලබා දී ඇති ප්‍රවේගයට උපරිම පරාසය (Maximum Range) ලබාගෙන ඇත.</span>`;
+            } else if (currentTheta > 45) {
+                evalText += `<span class="text-info"><i class="fa-solid fa-circle-info me-1"></i>කෝණය $45^\circ$ ට වඩා වැඩි නිසා සිරස් උස වැඩි වී ඇති නමුත් පරාසය අඩු වී ඇත.</span>`;
+            } else {
+                evalText += `<span class="text-info"><i class="fa-solid fa-circle-info me-1"></i>කෝණය $45^\circ$ ට වඩා අඩු නිසා පරාසය ප්‍රශස්ත මට්ටමට පැමිණ නොමැත.</span>`;
+            }
+
+            if (isAirRes) {
+                evalText += `<br><span class="text-warning"><i class="fa-solid fa-wind me-1"></i><strong>වායු ප්‍රතිරෝධය බලපෑම:</strong> වායු ප්‍රතිරෝධය නිසා චලිතයේ සමමිතිය (Symmetry) නැතිවී පරාසය සහ උස අඩුවී ඇත.</span>`;
+            }
+
+            evalContent.innerHTML = evalText;
+        }
+
+        document.getElementById("launchBtn").addEventListener("click", launchProjectile);
+        document.getElementById("resetBtn").addEventListener("click", resetSimulation);
+        airResToggle.addEventListener("change", resetSimulation);
+
+        // Initial setup
+        resetSimulation();
+    </script>
+</body>
+</html>

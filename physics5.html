@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A/L Physics - Hydrostatics Virtual Lab (Practicals 07, 08, 09)</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-dark: #090d16;
+            --card-bg: rgba(16, 24, 39, 0.9);
+            --border-color: rgba(0, 242, 254, 0.25);
+            --neon-blue: #00f2fe;
+            --neon-green: #00ff88;
+            --neon-amber: #ffb703;
+            --neon-pink: #ff0055;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #e2e8f0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(16px);
+            border-radius: 16px;
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6);
+        }
+
+        .glow-title {
+            text-shadow: 0 0 12px rgba(0, 242, 254, 0.6);
+        }
+
+        .canvas-container {
+            background: radial-gradient(circle at center, #111927 0%, #070a10 100%);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.15);
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 420px;
+        }
+
+        .form-control-cyber {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border-color);
+            color: #fff;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .form-control-cyber:focus {
+            background: rgba(15, 23, 42, 0.95);
+            border-color: var(--neon-blue);
+            color: #fff;
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.4);
+        }
+
+        .form-range::-webkit-slider-thumb {
+            background: var(--neon-blue);
+            box-shadow: 0 0 12px var(--neon-blue);
+        }
+
+        .nav-pills .nav-link {
+            color: #94a3b8;
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-pills .nav-link.active {
+            background: rgba(0, 242, 254, 0.2);
+            color: var(--neon-blue);
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+        }
+
+        .metric-box {
+            background: rgba(10, 15, 26, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #94a3b8;
+        }
+
+        .metric-val {
+            font-size: 1.15rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation -->
+    <nav class="navbar navbar-dark border-bottom border-secondary py-3" style="background: #070a10;">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold text-info glow-title fs-4" href="#">
+                <i class="fa-solid fa-flask-vial me-2"></i>NEXUS PHYSICS LAB <span class="fs-6 text-muted">| Hydrostatics Suite</span>
+            </a>
+            <span class="badge bg-primary bg-opacity-20 border border-primary text-info px-3 py-2">G.C.E. A/L Fluids Practicals 07, 08 & 09</span>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4 my-4">
+        
+        <!-- Lab Tabs Switcher -->
+        <ul class="nav nav-pills nav-justified mb-4 gap-2" id="pills-tab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active py-3" id="tab-p07" data-bs-toggle="pill" data-bs-target="#lab-p07" type="button" role="tab">
+                    <i class="fa-solid fa-vial me-2"></i>07. U-නළ පරීක්ෂණය (U-Tube)
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link py-3" id="tab-p08" data-bs-toggle="pill" data-bs-target="#lab-p08" type="button" role="tab">
+                    <i class="fa-solid fa-code-fork me-2"></i>08. හෙයාර් උපකරණය (Hare's Apparatus)
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link py-3" id="tab-p09" data-bs-toggle="pill" data-bs-target="#lab-p09" type="button" role="tab">
+                    <i class="fa-solid fa-vial-dropper me-2"></i>09. බර යෙදූ පරීක්ෂා නළය (Loaded Tube)
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="pills-tabContent">
+            
+            <!-- ================= PRACTICAL 07: U-TUBE ================= -->
+            <div class="tab-pane fade show active" id="lab-p07" role="tabpanel">
+                <div class="row g-4">
+                    <div class="col-xl-4 col-lg-5">
+                        <div class="glass-card p-4">
+                            <h5 class="fw-bold text-white mb-3"><i class="fa-solid fa-sliders text-info me-2"></i>පරාමිතීන් (Parameters)</h5>
+
+                            <div class="mb-3">
+                                <label class="form-label text-white small fw-bold">ද්‍රවය 1 (ජලය) ඝනත්වය: 1000 kg/m³</label>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label text-white small mb-0 fw-bold">ද්‍රවය 2 (තෙල්) ඝනත්වය (kg/m³):</label>
+                                    <input type="number" id="p07_rho2_num" class="form-control form-control-cyber form-control-sm" value="800" min="500" max="1500" style="width: 80px;">
+                                </div>
+                                <input type="range" class="form-range" id="p07_rho2_range" min="500" max="1500" value="800">
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label text-white small mb-0 fw-bold">එකතු කළ ද්‍රවය 2 හි පරිමාව (cm³):</label>
+                                    <input type="number" id="p07_h2_num" class="form-control form-control-cyber form-control-sm" value="15" min="5" max="25" style="width: 80px;">
+                                </div>
+                                <input type="range" class="form-range" id="p07_h2_range" min="5" max="25" value="15">
+                            </div>
+
+                            <div class="p-3 bg-dark bg-opacity-50 rounded border border-secondary mb-3">
+                                <h6 class="fw-bold text-info small mb-2"><i class="fa-solid fa-calculator me-2"></i>ගණනය කිරීම්:</h6>
+                                <div class="lh-lg small text-slate-300">
+                                    • $h_1$ (ජල කඳේ උස) = <span id="p07_h1_val" class="text-warning fw-bold">0</span> cm<br>
+                                    • $h_2$ (ද්‍රව 2 කඳේ උස) = <span id="p07_h2_val" class="text-success fw-bold">0</span> cm<br>
+                                    • සාපේක්ෂ ඝනත්වය = $h_1 / h_2 = $ <span id="p07_rd_val" class="text-info fw-bold">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-8 col-lg-7">
+                        <div class="glass-card p-3 mb-3">
+                            <h6 class="fw-bold text-info mb-2"><i class="fa-solid fa-eye me-2"></i>2D U-Tube Simulation</h6>
+                            <div class="canvas-container">
+                                <canvas id="p07Canvas" width="800" height="420"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= PRACTICAL 08: HARE'S APPARATUS ================= -->
+            <div class="tab-pane fade" id="lab-p08" role="tabpanel">
+                <div class="row g-4">
+                    <div class="col-xl-4 col-lg-5">
+                        <div class="glass-card p-4">
+                            <h5 class="fw-bold text-white mb-3"><i class="fa-solid fa-sliders text-info me-2"></i>පරාමිතීන් (Parameters)</h5>
+
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label text-white small mb-0 fw-bold">ද්‍රවය B හි ඝනත්වය (kg/m³):</label>
+                                    <input type="number" id="p08_rhoB_num" class="form-control form-control-cyber form-control-sm" value="800" min="600" max="1400" style="width: 80px;">
+                                </div>
+                                <input type="range" class="form-range" id="p08_rhoB_range" min="600" max="1400" value="800">
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label text-white small mb-0 fw-bold">චූෂණ පීඩන අඩුවීම ($\Delta P$):</label>
+                                    <input type="number" id="p08_vac_num" class="form-control form-control-cyber form-control-sm" value="15" min="2" max="25" style="width: 80px;">
+                                </div>
+                                <input type="range" class="form-range" id="p08_vac_range" min="2" max="25" value="15">
+                            </div>
+
+                            <div class="p-3 bg-dark bg-opacity-50 rounded border border-secondary mb-3">
+                                <h6 class="fw-bold text-info small mb-2"><i class="fa-solid fa-calculator me-2"></i>ගණනය කිරීම්:</h6>
+                                <div class="lh-lg small text-slate-300">
+                                    • $h_W$ (ජල කඳේ උස) = <span id="p08_hw_val" class="text-warning fw-bold">0</span> cm<br>
+                                    • $h_B$ (ද්‍රව B කඳේ උස) = <span id="p08_hb_val" class="text-success fw-bold">0</span> cm<br>
+                                    • සාපේක්ෂ ඝනත්වය ($h_W / h_B$) = <span id="p08_rd_val" class="text-info fw-bold">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-8 col-lg-7">
+                        <div class="glass-card p-3 mb-3">
+                            <h6 class="fw-bold text-info mb-2"><i class="fa-solid fa-eye me-2"></i>2D Hare's Apparatus Simulation</h6>
+                            <div class="canvas-container">
+                                <canvas id="p08Canvas" width="800" height="420"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= PRACTICAL 09: LOADED TEST TUBE ================= -->
+            <div class="tab-pane fade" id="lab-p09" role="tabpanel">
+                <div class="row g-4">
+                    <div class="col-xl-4 col-lg-5">
+                        <div class="glass-card p-4">
+                            <h5 class="fw-bold text-white mb-3"><i class="fa-solid fa-sliders text-info me-2"></i>පරාමිතීන් (Parameters)</h5>
+
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label text-white small mb-0 fw-bold">නළයේ + ඊයම් මූනිස්සම් ස්කන්ධය ($M$ - g):</label>
+                                    <input type="number" id="p09_m_num" class="form-control form-control-cyber form-control-sm" value="35" min="10" max="60" style="width: 80px;">
+                                </div>
+                                <input type="range" class="form-range" id="p09_m_range" min="10" max="60" value="35">
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label text-white small mb-0 fw-bold">නළයේ හරස්කඩ වර්ගඵලය ($A$ - cm²):</label>
+                                    <input type="number" id="p09_a_num" class="form-control form-control-cyber form-control-sm" value="3.0" min="1.0" max="6.0" step="0.1" style="width: 80px;">
+                                </div>
+                                <input type="range" class="form-range" id="p09_a_range" min="1.0" max="6.0" step="0.1" value="3.0">
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label text-white small mb-0 fw-bold">ද්‍රවයේ ඝනත්වය ($\rho$ - g/cm³):</label>
+                                    <input type="number" id="p09_rho_num" class="form-control form-control-cyber form-control-sm" value="1.0" min="0.7" max="1.5" step="0.05" style="width: 80px;">
+                                </div>
+                                <input type="range" class="form-range" id="p09_rho_range" min="0.7" max="1.5" step="0.05" value="1.0">
+                            </div>
+
+                            <div class="p-3 bg-dark bg-opacity-50 rounded border border-secondary mb-3">
+                                <h6 class="fw-bold text-info small mb-2"><i class="fa-solid fa-calculator me-2"></i>ගණනය කිරීම්:</h6>
+                                <div class="lh-lg small text-slate-300">
+                                    • ගිලුණු උස ($h = \frac{M}{A \cdot \rho}$) = <span id="p09_h_val" class="text-warning fw-bold">0</span> cm<br>
+                                    • උප්ප්ලාවක බලය (Upthrust) = <span id="p09_up_val" class="text-success fw-bold">0</span> N
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-8 col-lg-7">
+                        <div class="glass-card p-3 mb-3">
+                            <h6 class="fw-bold text-info mb-2"><i class="fa-solid fa-eye me-2"></i>2D Loaded Test Tube Simulation</h6>
+                            <div class="canvas-container">
+                                <canvas id="p09Canvas" width="800" height="420"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MathJax for Formulas -->
+    <script>
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+    <!-- JavaScript Practical Logic -->
+    <script>
+        function syncInputs(numId, rangeId, callback) {
+            const num = document.getElementById(numId);
+            const range = document.getElementById(rangeId);
+            num.addEventListener('input', () => { range.value = num.value; callback(); });
+            range.addEventListener('input', () => { num.value = range.value; callback(); });
+        }
+
+        /* ================= PRACTICAL 07: U-TUBE ================= */
+        const p07Canvas = document.getElementById("p07Canvas");
+        const p07Ctx = p07Canvas.getContext("2d");
+
+        syncInputs("p07_rho2_num", "p07_rho2_range", drawP07);
+        syncInputs("p07_h2_num", "p07_h2_range", drawP07);
+
+        function drawP07() {
+            let rho1 = 1000;
+            let rho2 = parseFloat(document.getElementById("p07_rho2_num").value);
+            let h2 = parseFloat(document.getElementById("p07_h2_num").value);
+
+            let h1 = (rho2 / rho1) * h2;
+            let rd = rho2 / rho1;
+
+            document.getElementById("p07_h1_val").innerText = h1.toFixed(2);
+            document.getElementById("p07_h2_val").innerText = h2.toFixed(2);
+            document.getElementById("p07_rd_val").innerText = rd.toFixed(2);
+
+            p07Ctx.clearRect(0, 0, p07Canvas.width, p07Canvas.height);
+
+            let cx = 400, basey = 350, r = 60, tubeW = 28;
+            let scale = 10;
+
+            // Draw U Glass Tube Outline
+            p07Ctx.strokeStyle = "rgba(255,255,255,0.6)";
+            p07Ctx.lineWidth = 4;
+            p07Ctx.beginPath();
+            p07Ctx.arc(cx, basey - r, r + tubeW/2, 0, Math.PI);
+            p07Ctx.stroke();
+
+            // Left & Right Outer Tubes
+            p07Ctx.beginPath();
+            p07Ctx.moveTo(cx - r - tubeW/2, basey - r);
+            p07Ctx.lineTo(cx - r - tubeW/2, 60);
+            p07Ctx.moveTo(cx - r + tubeW/2, basey - r);
+            p07Ctx.lineTo(cx - r + tubeW/2, 60);
+            p07Ctx.moveTo(cx + r - tubeW/2, basey - r);
+            p07Ctx.lineTo(cx + r - tubeW/2, 60);
+            p07Ctx.moveTo(cx + r + tubeW/2, basey - r);
+            p07Ctx.lineTo(cx + r + tubeW/2, 60);
+            p07Ctx.stroke();
+
+            // Fluids
+            let interfaceY = basey - r - 40;
+            let leftWaterY = interfaceY - h1 * scale;
+            let rightOilY = interfaceY - h2 * scale;
+
+            // Liquid 1 (Water - Blue)
+            p07Ctx.fillStyle = "rgba(0, 242, 254, 0.6)";
+            p07Ctx.fillRect(cx - r - tubeW/2 + 2, leftWaterY, tubeW - 4, interfaceY - leftWaterY);
+            p07Ctx.beginPath();
+            p07Ctx.arc(cx, basey - r, r + tubeW/2 - 2, 0, Math.PI);
+            p07Ctx.lineTo(cx + r - tubeW/2 + 2, interfaceY);
+            p07Ctx.arc(cx, basey - r, r - tubeW/2 + 2, Math.PI, 0, true);
+            p07Ctx.closePath();
+            p07Ctx.fill();
+
+            // Liquid 2 (Oil - Amber)
+            p07Ctx.fillStyle = "rgba(255, 183, 3, 0.7)";
+            p07Ctx.fillRect(cx + r - tubeW/2 + 2, rightOilY, tubeW - 4, interfaceY - rightOilY);
+
+            // Dotted Interface Line
+            p07Ctx.strokeStyle = "#ff0055";
+            p07Ctx.setLineDash([4, 4]);
+            p07Ctx.lineWidth = 2;
+            p07Ctx.beginPath();
+            p07Ctx.moveTo(cx - r - 50, interfaceY);
+            p07Ctx.lineTo(cx + r + 50, interfaceY);
+            p07Ctx.stroke();
+            p07Ctx.setLineDash([]);
+
+            // Labels
+            p07Ctx.fillStyle = "#fff";
+            p07Ctx.font = "12px sans-serif";
+            p07Ctx.fillText("මායිම් මට්ටම", cx - r - 120, interfaceY + 4);
+            p07Ctx.fillText("h1 (ජලය) = " + h1.toFixed(1) + "cm", cx - r - 140, leftWaterY + (interfaceY - leftWaterY)/2);
+            p07Ctx.fillText("h2 (ද්‍රව 2) = " + h2.toFixed(1) + "cm", cx + r + 40, rightOilY + (interfaceY - rightOilY)/2);
+        }
+
+        /* ================= PRACTICAL 08: HARE'S APPARATUS ================= */
+        const p08Canvas = document.getElementById("p08Canvas");
+        const p08Ctx = p08Canvas.getContext("2d");
+
+        syncInputs("p08_rhoB_num", "p08_rhoB_range", drawP08);
+        syncInputs("p08_vac_num", "p08_vac_range", drawP08);
+
+        function drawP08() {
+            let rhoW = 1000;
+            let rhoB = parseFloat(document.getElementById("p08_rhoB_num").value);
+            let vacP = parseFloat(document.getElementById("p08_vac_num").value);
+
+            let hw = vacP;
+            let hb = (rhoW / rhoB) * hw;
+            let rd = rhoW / hb;
+
+            document.getElementById("p08_hw_val").innerText = hw.toFixed(1);
+            document.getElementById("p08_hb_val").innerText = hb.toFixed(1);
+            document.getElementById("p08_rd_val").innerText = (rhoB / rhoW).toFixed(2);
+
+            p08Ctx.clearRect(0, 0, p08Canvas.width, p08Canvas.height);
+
+            let scale = 10;
+            let beakerY = 320;
+
+            // Beaker A (Water)
+            p08Ctx.fillStyle = "rgba(0, 242, 254, 0.3)";
+            p08Ctx.fillRect(220, beakerY, 100, 70);
+            p08Ctx.strokeStyle = "#fff";
+            p08Ctx.strokeRect(220, beakerY, 100, 70);
+
+            // Beaker B (Liquid B)
+            p08Ctx.fillStyle = "rgba(0, 255, 136, 0.3)";
+            p08Ctx.fillRect(480, beakerY, 100, 70);
+            p08Ctx.strokeRect(480, beakerY, 100, 70);
+
+            // Inverted Y Tube Glass Lines
+            p08Ctx.strokeStyle = "rgba(255,255,255,0.7)";
+            p08Ctx.lineWidth = 3;
+            
+            // Left Arm
+            p08Ctx.beginPath();
+            p08Ctx.moveTo(270, beakerY + 40);
+            p08Ctx.lineTo(270, 100);
+            p08Ctx.lineTo(400, 60);
+            p08Ctx.stroke();
+
+            // Right Arm
+            p08Ctx.beginPath();
+            p08Ctx.moveTo(530, beakerY + 40);
+            p08Ctx.lineTo(530, 100);
+            p08Ctx.lineTo(400, 60);
+            p08Ctx.stroke();
+
+            // Top Valve Tube
+            p08Ctx.beginPath();
+            p08Ctx.moveTo(400, 60);
+            p08Ctx.lineTo(400, 20);
+            p08Ctx.stroke();
+
+            // Liquid Columns
+            let waterTopY = beakerY - hw * scale;
+            let liquidBTopY = beakerY - hb * scale;
+
+            // Water Column
+            p08Ctx.fillStyle = "rgba(0, 242, 254, 0.8)";
+            p08Ctx.fillRect(263, waterTopY, 14, beakerY + 40 - waterTopY);
+
+            // Liquid B Column
+            p08Ctx.fillStyle = "rgba(0, 255, 136, 0.8)";
+            p08Ctx.fillRect(523, liquidBTopY, 14, beakerY + 40 - liquidBTopY);
+
+            // Ruler Scales & Height Lines
+            p08Ctx.fillStyle = "#fff";
+            p08Ctx.font = "12px sans-serif";
+            p08Ctx.fillText("h_W = " + hw.toFixed(1) + " cm", 170, waterTopY + 10);
+            p08Ctx.fillText("h_B = " + hb.toFixed(1) + " cm", 560, liquidBTopY + 10);
+
+            p08Ctx.fillText("ජලය (Water)", 235, beakerY + 90);
+            p08Ctx.fillText("ද්‍රවය B", 505, beakerY + 90);
+        }
+
+        /* ================= PRACTICAL 09: LOADED TEST TUBE ================= */
+        const p09Canvas = document.getElementById("p09Canvas");
+        const p09Ctx = p09Canvas.getContext("2d");
+
+        syncInputs("p09_m_num", "p09_m_range", drawP09);
+        syncInputs("p09_a_num", "p09_a_range", drawP09);
+        syncInputs("p09_rho_num", "p09_rho_range", drawP09);
+
+        function drawP09() {
+            let M = parseFloat(document.getElementById("p09_m_num").value);
+            let A = parseFloat(document.getElementById("p09_a_num").value);
+            let rho = parseFloat(document.getElementById("p09_rho_num").value);
+
+            let h = M / (A * rho);
+            let upthrust = (M * 9.8) / 1000;
+
+            document.getElementById("p09_h_val").innerText = h.toFixed(2);
+            document.getElementById("p09_up_val").innerText = upthrust.toFixed(3);
+
+            p09Ctx.clearRect(0, 0, p09Canvas.width, p09Canvas.height);
+
+            let jarX = 320, jarY = 80, jarW = 160, jarH = 300;
+            let liquidY = jarY + 40;
+
+            // Glass Jar
+            p09Ctx.fillStyle = "rgba(0, 242, 254, 0.25)";
+            p09Ctx.fillRect(jarX, liquidY, jarW, jarH - 40);
+            p09Ctx.strokeStyle = "#fff";
+            p09Ctx.lineWidth = 3;
+            p09Ctx.strokeRect(jarX, jarY, jarW, jarH);
+
+            // Test Tube
+            let tubeWidth = Math.sqrt(A) * 18;
+            let tubeLen = 220;
+            let scale = 8;
+            let immersedPx = h * scale;
+
+            let tubeX = jarX + jarW/2 - tubeWidth/2;
+            let tubeY = liquidY - (tubeLen - immersedPx);
+
+            // Tube Body
+            p09Ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
+            p09Ctx.fillRect(tubeX, tubeY, tubeWidth, tubeLen);
+            p09Ctx.strokeStyle = "#00f2fe";
+            p09Ctx.strokeRect(tubeX, tubeY, tubeWidth, tubeLen);
+
+            // Lead Shots at Bottom
+            p09Ctx.fillStyle = "#ff0055";
+            for(let i=0; i<12; i++) {
+                let rx = tubeX + 5 + Math.random() * (tubeWidth - 10);
+                let ry = tubeY + tubeLen - 5 - Math.random() * 20;
+                p09Ctx.beginPath();
+                p09Ctx.arc(rx, ry, 3, 0, Math.PI * 2);
+                p09Ctx.fill();
+            }
+
+            // Height Arrow Marker
+            p09Ctx.strokeStyle = "#ffb703";
+            p09Ctx.lineWidth = 2;
+            p09Ctx.beginPath();
+            p09Ctx.moveTo(tubeX - 20, liquidY);
+            p09Ctx.lineTo(tubeX - 20, tubeY + tubeLen);
+            p09Ctx.stroke();
+
+            p09Ctx.fillStyle = "#ffb703";
+            p09Ctx.font = "bold 13px sans-serif";
+            p09Ctx.fillText("ගිලුණු උස h = " + h.toFixed(1) + " cm", tubeX - 160, liquidY + immersedPx/2);
+        }
+
+        // Initialize All Canvas Draws
+        drawP07();
+        drawP08();
+        drawP09();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

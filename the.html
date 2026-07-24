@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Virtual Lab - Beam Balance Simulator</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            background-color: #0b0e14 !important;
+            color: #c9d1d9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Glassmorphism Cards */
+        .cyber-card {
+            background: rgba(22, 27, 34, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* Canvas Box Styling */
+        .canvas-container {
+            background: #161b22;
+            border: 2px solid #30363d;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            background: #0d1117;
+        }
+
+        /* Custom Range Sliders */
+        .form-range::-webkit-slider-thumb {
+            background: #00e676;
+            box-shadow: 0 0 10px #00e676;
+        }
+
+        .glowing-text {
+            text-shadow: 0 0 10px rgba(0, 230, 118, 0.5);
+        }
+
+        .glowing-btn {
+            box-shadow: 0 0 10px rgba(0, 230, 118, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .glowing-btn:hover {
+            box-shadow: 0 0 20px rgba(0, 230, 118, 0.6);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <nav class="navbar navbar-dark bg-dark border-bottom border-secondary py-3">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-success glowing-text" href="#">
+                <i class="fa-solid fa-flask me-2"></i>NEXUS VIRTUAL LABS
+            </a>
+            <span class="badge bg-outline-info border border-info text-info">A/L Physics Practical #04</span>
+        </div>
+    </nav>
+
+    <div class="container my-4">
+        <!-- Practical Title -->
+        <div class="row mb-4">
+            <div class="col-12 text-center text-md-start">
+                <h2 class="fw-bold text-white mb-1">⚖️ තෙදඩු තුලාව (Triple Beam Balance)</h2>
+                <p class="text-muted">තෙදඩු තුලාව භාවිතයෙන් වස්තුවක ස්කන්ධය නිවැරදිව මැනීම.</p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Left Column: Interactive Canvas & Controls -->
+            <div class="col-lg-8">
+                <div class="cyber-card p-3 p-md-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold text-info mb-0"><i class="fa-solid fa-gamepad me-2"></i>Virtual Apparatus Simulator</h5>
+                        <button id="reset_btn" class="btn btn-outline-warning btn-sm"><i class="fa-solid fa-rotate-left me-1"></i> Reset</button>
+                    </div>
+
+                    <!-- Canvas Interactive Canvas -->
+                    <div class="canvas-container mb-3">
+                        <canvas id="balanceCanvas" width="800" height="320"></canvas>
+                    </div>
+
+                    <!-- Simulator Controls (Sliders for riders) -->
+                    <div class="p-3 rounded bg-dark border border-secondary mb-3">
+                        <div class="mb-2">
+                            <label for="rider100" class="form-label d-flex justify-content-between small text-white">
+                                <span><i class="fa-solid fa-weight-hanging me-2 text-warning"></i>100g Rider:</span>
+                                <span id="r100_val" class="text-warning">0 g</span>
+                            </label>
+                            <input type="range" class="form-range" id="rider100" min="0" max="500" step="100" value="0">
+                        </div>
+
+                        <div class="mb-2">
+                            <label for="rider10" class="form-label d-flex justify-content-between small text-white">
+                                <span><i class="fa-solid fa-weight-hanging me-2 text-info"></i>10g Rider:</span>
+                                <span id="r10_val" class="text-info">0 g</span>
+                            </label>
+                            <input type="range" class="form-range" id="rider10" min="0" max="100" step="10" value="0">
+                        </div>
+
+                        <div class="mb-1">
+                            <label for="rider1" class="form-label d-flex justify-content-between small text-white">
+                                <span><i class="fa-solid fa-weight-hanging me-2 text-success"></i>1g / 0.1g Rider:</span>
+                                <span id="r1_val" class="text-success">0.0 g</span>
+                            </label>
+                            <input type="range" class="form-range" id="rider1" min="0" max="10" step="0.1" value="0">
+                        </div>
+                    </div>
+
+                    <!-- Live Readings Box -->
+                    <div class="row g-2 text-center">
+                        <div class="col-6">
+                            <div class="p-2 border border-secondary rounded bg-dark">
+                                <small class="text-muted d-block" style="font-size: 0.75rem;">තුලාවේ තත්ත්වය (Status)</small>
+                                <span id="balance_status" class="fw-bold text-warning fs-6">නොසමතුලිතයි (Unbalanced)</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2 border border-success rounded bg-dark">
+                                <small class="text-success d-block fw-bold" style="font-size: 0.75rem;">මුළු ස්කන්ධය (Total Mass)</small>
+                                <span id="total_reading_text" class="fw-bold text-success fs-5 glowing-text">0.0 g</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Theory & Test Quiz -->
+            <div class="col-lg-4">
+                <!-- Theory Card -->
+                <div class="cyber-card p-3 p-md-4 mb-4">
+                    <h5 class="fw-bold text-warning mb-3"><i class="fa-solid fa-book-open me-2"></i>සිද්ධාන්ත (Theory)</h5>
+                    <ul class="list-unstyled small lh-lg">
+                        <li class="mb-2">🔹 <strong>කුඩාම මිනුම (Least Count):</strong> $0.1\text{ g}$ (තෙදඩු තුලාව ප්‍රධාන වශයෙන්)</li>
+                        <li class="mb-2">🔹 <strong>තුලා දඬු 3 (3 Beams):</strong>
+                            <br>&nbsp;&nbsp;• පළමු දණ්ඩ: $100\text{ g}$ පියවර
+                            <br>&nbsp;&nbsp;• දෙවන දණ්ඩ: $10\text{ g}$ පියවර
+                            <br>&nbsp;&nbsp;• තෙවන දණ්ඩ: $0.1\text{ g}$ දක්වා මැනිය හැක
+                        </li>
+                        <li class="mb-2">🔹 <strong>සමතුලිතතාව:</strong> දර්ශකය Zero mark (0) එකට කෙලින්ම පිහිටන විට තුලාව සමතුලිත වේ.</li>
+                    </ul>
+                </div>
+
+                <!-- Self Assessment Test Card -->
+                <div class="cyber-card p-3 p-md-4">
+                    <h5 class="fw-bold text-success mb-3"><i class="fa-solid fa-pen-to-square me-2"></i>ස්වයං ඇගයීම (Quiz)</h5>
+                    <p class="small text-muted">තැටිය මත රහස් වස්තුවක් තබා ඇත. Sliders චලනය කර තුලාව සමතුලිත කර ස්කන්ධය සොයන්න.</p>
+                    
+                    <button id="random_quiz_btn" class="btn btn-primary w-100 mb-3 fw-bold glowing-btn">🎯 Random Object එකක් තබන්න</button>
+
+                    <div id="quiz_box" class="d-none">
+                        <div class="mb-2">
+                            <label class="form-label small text-white">වස්තුවේ ස්කන්ධය (g වලින්):</label>
+                            <input type="number" step="0.1" id="user_quiz_input" class="form-control bg-dark text-white border-secondary" placeholder="eg: 245.3">
+                        </div>
+                        <button id="check_quiz_btn" class="btn btn-success w-100 fw-bold">පිළිතුර පරීක්ෂා කරන්න</button>
+                        <div id="quiz_result" class="mt-2 text-center fw-bold"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MathJax for LaTeX Equations -->
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+    <!-- Canvas Simulation Script -->
+    <script>
+        const canvas = document.getElementById("balanceCanvas");
+        const ctx = canvas.getContext("2d");
+
+        const r100 = document.getElementById("rider100");
+        const r10 = document.getElementById("rider10");
+        const r1 = document.getElementById("rider1");
+
+        let targetMass = 0; // Mass of object placed on pan during quiz
+        let isQuizMode = false;
+
+        function drawSimulator() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            let m100 = parseFloat(r100.value);
+            let m10 = parseFloat(r10.value);
+            let m1 = parseFloat(r1.value);
+            let userRiderMass = m100 + m10 + m1;
+
+            // Difference between actual target mass and rider setting
+            let diff = userRiderMass - targetMass;
+            
+            // Calculate tilt angle of beam based on mass difference
+            let maxTilt = Math.PI / 25; // max rotation angle
+            let tilt = Math.max(-maxTilt, Math.min(maxTilt, (diff / 50) * maxTilt));
+
+            const pivotX = 350;
+            const pivotY = 160;
+
+            // 1. Heavy Base Stand
+            ctx.fillStyle = "#161b22";
+            ctx.fillRect(100, 260, 600, 20);
+            ctx.strokeStyle = "#30363d";
+            ctx.strokeRect(100, 260, 600, 20);
+
+            // Center Fulcrum Pillar
+            ctx.fillStyle = "#30363d";
+            ctx.beginPath();
+            ctx.moveTo(pivotX - 25, 260);
+            ctx.lineTo(pivotX + 25, 260);
+            ctx.lineTo(pivotX + 10, pivotY);
+            ctx.lineTo(pivotX - 10, pivotY);
+            ctx.closePath();
+            ctx.fill();
+
+            // Zero Scale Indicator on Right
+            ctx.fillStyle = "#21262d";
+            ctx.fillRect(660, 110, 20, 100);
+            ctx.strokeStyle = "#484f58";
+            ctx.strokeRect(660, 110, 20, 100);
+
+            // Zero Line
+            ctx.strokeStyle = "#00e676";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(660, 160);
+            ctx.lineTo(675, 160);
+            ctx.stroke();
+
+            // 2. Rotating Beam System
+            ctx.save();
+            ctx.translate(pivotX, pivotY);
+            ctx.rotate(tilt);
+
+            // Triple Beams (Main Body)
+            ctx.fillStyle = "#8b949e";
+            ctx.fillRect(-220, -10, 520, 20); // Beam
+
+            // Draw Beams Markings & Riders
+            // 100g Beam (Top)
+            ctx.fillStyle = "#1f6feb";
+            ctx.fillRect(-180, -18, 320, 6);
+            let pos100 = -180 + (m100 / 500) * 320;
+            ctx.fillStyle = "#e3b341"; // Rider 100g
+            ctx.fillRect(pos100 - 4, -22, 8, 12);
+
+            // 10g Beam (Middle)
+            ctx.fillStyle = "#38bdf8";
+            ctx.fillRect(-180, -8, 320, 6);
+            let pos10 = -180 + (m10 / 100) * 320;
+            ctx.fillStyle = "#e3b341"; // Rider 10g
+            ctx.fillRect(pos10 - 4, -12, 8, 12);
+
+            // 1g Beam (Bottom)
+            ctx.fillStyle = "#00e676";
+            ctx.fillRect(-180, 2, 320, 6);
+            let pos1 = -180 + (m1 / 10) * 320;
+            ctx.fillStyle = "#e3b341"; // Rider 1g
+            ctx.fillRect(pos1 - 4, -2, 8, 12);
+
+            // Pointer Needle (Right End)
+            ctx.strokeStyle = "#f85149";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(300, 0);
+            ctx.lineTo(320, 0);
+            ctx.stroke();
+
+            // 3. Left Pan Hanger
+            ctx.strokeStyle = "#c9d1d9";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(-200, 0);
+            ctx.lineTo(-200, 60);
+            ctx.stroke();
+
+            // Weighing Pan
+            ctx.fillStyle = "#484f58";
+            ctx.beginPath();
+            ctx.ellipse(-200, 60, 50, 10, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = "#8b949e";
+            ctx.stroke();
+
+            // Object on Pan (Visible in Quiz or Normal mode)
+            if (targetMass > 0) {
+                ctx.fillStyle = "#a5d6ff";
+                ctx.fillRect(-220, 20, 40, 40);
+                ctx.strokeStyle = "#1f6feb";
+                ctx.strokeRect(-220, 20, 40, 40);
+
+                ctx.fillStyle = "#0d1117";
+                ctx.font = "10px sans-serif";
+                ctx.textAlign = "center";
+                ctx.fillText("Object", -200, 43);
+            }
+
+            ctx.restore();
+
+            updateReadings(userRiderMass, Math.abs(diff) < 0.05);
+        }
+
+        function updateReadings(riderMass, isBalanced) {
+            document.getElementById("r100_val").innerText = r100.value + " g";
+            document.getElementById("r10_val").innerText = r10.value + " g";
+            document.getElementById("r1_val").innerText = parseFloat(r1.value).toFixed(1) + " g";
+
+            const statusElem = document.getElementById("balance_status");
+
+            if(!isQuizMode) {
+                document.getElementById("total_reading_text").innerText = riderMass.toFixed(1) + " g";
+                statusElem.innerText = isBalanced ? "සමතුලිතයි (Balanced) ✔" : "අසමතුලිතයි (Unbalanced)";
+                statusElem.className = isBalanced ? "fw-bold text-success fs-6" : "fw-bold text-warning fs-6";
+            } else {
+                document.getElementById("total_reading_text").innerText = riderMass.toFixed(1) + " g";
+                statusElem.innerText = isBalanced ? "සමතුලිතයි (Balanced) ✔" : "අසමතුලිතයි (Unbalanced)";
+                statusElem.className = isBalanced ? "fw-bold text-success fs-6" : "fw-bold text-warning fs-6";
+            }
+        }
+
+        // Event Listeners
+        [r100, r10, r1].forEach(slider => {
+            slider.addEventListener("input", drawSimulator);
+        });
+
+        document.getElementById("reset_btn").addEventListener("click", () => {
+            isQuizMode = false;
+            targetMass = 0;
+            r100.value = 0;
+            r10.value = 0;
+            r1.value = 0;
+            document.getElementById("quiz_box").classList.add("d-none");
+            drawSimulator();
+        });
+
+        // Quiz System Logic
+        document.getElementById("random_quiz_btn").addEventListener("click", () => {
+            isQuizMode = true;
+            // Generate random mass between 10.0g and 599.9g rounded to 0.1
+            targetMass = Math.round((Math.random() * 550 + 10) * 10) / 10;
+            
+            // Reset riders
+            r100.value = 0;
+            r10.value = 0;
+            r1.value = 0;
+
+            document.getElementById("quiz_box").classList.remove("d-none");
+            document.getElementById("quiz_result").innerText = "";
+            document.getElementById("user_quiz_input").value = "";
+
+            drawSimulator();
+        });
+
+        document.getElementById("check_quiz_btn").addEventListener("click", () => {
+            let userAns = parseFloat(document.getElementById("user_quiz_input").value);
+            let actualAns = targetMass;
+
+            let resDiv = document.getElementById("quiz_result");
+            if (Math.abs(userAns - actualAns) < 0.15) {
+                resDiv.className = "mt-2 text-center fw-bold text-success";
+                resDiv.innerText = "🎉 නිවැරදියි! ස්කන්ධය = " + actualAns + "g";
+            } else {
+                resDiv.className = "mt-2 text-center fw-bold text-danger";
+                resDiv.innerText = "❌ වැරදියි! නැවත තුලාව සමතුලිත කර බලන්න.";
+            }
+        });
+
+        // Initial Draw
+        drawSimulator();
+    </script>
+</body>
+</html>

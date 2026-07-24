@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A/L Physics - Statics & Moments Virtual Lab</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-dark: #0a0e17;
+            --card-bg: rgba(18, 26, 41, 0.9);
+            --border-color: rgba(0, 242, 254, 0.25);
+            --neon-blue: #00f2fe;
+            --neon-green: #00ff88;
+            --neon-amber: #ffb703;
+            --neon-pink: #ff0055;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #e2e8f0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(16px);
+            border-radius: 16px;
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6);
+        }
+
+        .glow-title {
+            text-shadow: 0 0 12px rgba(0, 242, 254, 0.6);
+        }
+
+        .canvas-container {
+            background: radial-gradient(circle at center, #111927 0%, #070a10 100%);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.15);
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 380px;
+        }
+
+        .form-control-cyber {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border-color);
+            color: #fff;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .form-control-cyber:focus {
+            background: rgba(15, 23, 42, 0.95);
+            border-color: var(--neon-blue);
+            color: #fff;
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.4);
+        }
+
+        .form-range::-webkit-slider-thumb {
+            background: var(--neon-blue);
+            box-shadow: 0 0 12px var(--neon-blue);
+        }
+
+        .nav-pills .nav-link {
+            color: #94a3b8;
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-pills .nav-link.active {
+            background: rgba(0, 242, 254, 0.2);
+            color: var(--neon-blue);
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+        }
+
+        .metric-box {
+            background: rgba(10, 15, 26, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #94a3b8;
+        }
+
+        .metric-val {
+            font-size: 1.15rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <nav class="navbar navbar-dark border-bottom border-secondary py-3" style="background: #070a10;">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold text-info glow-title fs-4" href="#">
+                <i class="fa-solid fa-scale-balanced me-2"></i>NEXUS PHYSICS LAB <span class="fs-6 text-muted">| Statics & Moments Master</span>
+            </a>
+            <span class="badge bg-primary bg-opacity-20 border border-primary text-info px-3 py-2">G.C.E. A/L Mechanics Practical Suite</span>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4 my-4">
+        
+        <!-- Lab Mode Tabs Switcher -->
+        <ul class="nav nav-pills nav-justified mb-4 gap-2" id="pills-tab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active py-3" id="tab-para" data-bs-toggle="pill" data-bs-target="#para-lab" type="button" role="tab">
+                    <i class="fa-solid fa-draw-polygon me-2"></i>05. බල සමාන්තරාස්‍ර නියමය (Parallelogram Law)
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link py-3" id="tab-moments" data-bs-toggle="pill" data-bs-target="#moments-lab" type="button" role="tab">
+                    <i class="fa-solid fa-bars-staggered me-2"></i>06. බල ඝූර්ණ නියමය (Principle of Moments)
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="pills-tabContent">
+            
+            <!-- ================= PRACTICAL 05: PARALLELOGRAM LAW ================= -->
+            <div class="tab-pane fade show active" id="para-lab" role="tabpanel">
+                <div class="row g-4">
+                    
+                    <!-- Controls -->
+                    <div class="col-xl-4 col-lg-5">
+                        <div class="glass-card p-4">
+                            <h5 class="fw-bold text-white mb-3"><i class="fa-solid fa-sliders text-info me-2"></i>බල පරාමිතීන් (Force Parameters)</h5>
+
+                            <!-- Force P -->
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label text-white small mb-0 fw-bold">බලය $P$ (N):</label>
+                                    <input type="number" id="pNum" class="form-control form-control-cyber form-control-sm" value="12" min="1" max="30" style="width: 70px;">
+                                </div>
+                                <input type="range" class="form-range" id="pRange" min="1" max="30" value="12">
+                            </div>
+
+                            <!-- Force Q -->
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label text-white small mb-0 fw-bold">බලය $Q$ (N):</label>
+                                    <input type="number" id="qNum" class="form-control form-control-cyber form-control-sm" value="8" min="1" max="30" style="width: 70px;">
+                                </div>
+                                <input type="range" class="form-range" id="qRange" min="1" max="30" value="8">
+                            </div>
+
+                            <!-- Angle Alpha -->
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label text-white small mb-0 fw-bold">අතර කෝණය ($\alpha^\circ$):</label>
+                                    <input type="number" id="alphaNum" class="form-control form-control-cyber form-control-sm" value="60" min="10" max="170" style="width: 70px;">
+                                </div>
+                                <input type="range" class="form-range" id="alphaRange" min="10" max="170" value="60">
+                            </div>
+
+                            <!-- Calculations Box -->
+                            <div class="p-3 bg-dark bg-opacity-50 rounded border border-secondary mb-3">
+                                <h6 class="fw-bold text-info small mb-2"><i class="fa-solid fa-calculator me-2"></i>ගණනය කළ සම්ප්‍රයුක්තය (Resultant):</h6>
+                                <div class="lh-lg small text-slate-300">
+                                    • $R = \sqrt{P^2 + Q^2 + 2PQ\cos\alpha} = $ <span id="rVal" class="text-warning fw-bold">0</span> N<br>
+                                    • කෝණය ($\theta$ with $P$) = $\tan^{-1}\left(\frac{Q\sin\alpha}{P+Q\cos\alpha}\right) = $ <span id="thetaVal" class="text-success fw-bold">0</span>°
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Canvas -->
+                    <div class="col-xl-8 col-lg-7">
+                        <div class="glass-card p-3 mb-4">
+                            <h6 class="fw-bold text-info mb-2"><i class="fa-solid fa-vector-square me-2"></i>Real-time Parallelogram Vector Diagram</h6>
+                            <div class="canvas-container">
+                                <canvas id="paraCanvas" width="800" height="380"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-3">
+                            <h6 class="fw-bold text-white mb-2"><i class="fa-solid fa-book-bookmark text-info me-2"></i>A/L Theory Note</h6>
+                            <p class="small text-slate-300 mb-0">
+                                එක්තරා ලක්ෂ්‍යයකට ක්‍රියාකරන බල දෙකක් සමාන්තරාස්‍රයක බද්ධ පාද දෙකකින් විශාලත්වයෙන් හා දිශාවෙන් නිරූපණය කළ විට, එම පාද අතරින් යන විකර්ණය මගින් බල දෙකේ සම්ප්‍රයුක්තය ($R$) විශාලත්වයෙන් හා දිශාවෙන් නිරූපණය වේ.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ================= PRACTICAL 06: PRINCIPLE OF MOMENTS ================= -->
+            <div class="tab-pane fade" id="moments-lab" role="tabpanel">
+                <div class="row g-4">
+                    
+                    <!-- Controls -->
+                    <div class="col-xl-4 col-lg-5">
+                        <div class="glass-card p-4">
+                            <h5 class="fw-bold text-white mb-3"><i class="fa-solid fa-sliders text-info me-2"></i>දණ්ඩේ සහ භාර පරාමිතීන්</h5>
+
+                            <!-- Pivot / Fulcrum Position -->
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label text-white small mb-0 fw-bold">අධාරකය පිහිටීම ($P$ - cm):</label>
+                                    <input type="number" id="pivotNum" class="form-control form-control-cyber form-control-sm" value="40" min="10" max="90" style="width: 70px;">
+                                </div>
+                                <input type="range" class="form-range" id="pivotRange" min="10" max="90" value="40">
+                            </div>
+
+                            <!-- Weight 1 -->
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label text-white small mb-0 fw-bold">එල්ලා ඇති භාරය ($W_1$ - N):</label>
+                                    <input type="number" id="w1Num" class="form-control form-control-cyber form-control-sm" value="5" min="1" max="20" style="width: 70px;">
+                                </div>
+                                <input type="range" class="form-range" id="w1Range" min="1" max="20" value="5">
+                            </div>
+
+                            <!-- Weight 1 Position -->
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label text-white small mb-0 fw-bold">$W_1$ ස්ථානය (cm):</label>
+                                    <input type="number" id="pos1Num" class="form-control form-control-cyber form-control-sm" value="10" min="0" max="35" style="width: 70px;">
+                                </div>
+                                <input type="range" class="form-range" id="pos1Range" min="0" max="35" value="10">
+                            </div>
+
+                            <!-- Unknown Rod CG (Center of Gravity) -->
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label text-white small mb-0 fw-bold">දණ්ඩේ ගුරුත්ව කේන්ද්‍රය ($C$ - cm):</label>
+                                    <input type="number" id="cgNum" class="form-control form-control-cyber form-control-sm" value="65" min="20" max="80" style="width: 70px;">
+                                </div>
+                                <input type="range" class="form-range" id="cgRange" min="20" max="80" value="65">
+                            </div>
+
+                            <!-- Rod Unknown Weight -->
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label text-white small mb-0 fw-bold">දණ්ඩේ නොදන්නා බර ($W_R$ - N):</label>
+                                    <input type="number" id="wrNum" class="form-control form-control-cyber form-control-sm" value="6" min="1" max="20" style="width: 70px;">
+                                </div>
+                                <input type="range" class="form-range" id="wrRange" min="1" max="20" value="6">
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Canvas & Calculations -->
+                    <div class="col-xl-8 col-lg-7">
+                        <div class="glass-card p-3 mb-4">
+                            <h6 class="fw-bold text-info mb-2"><i class="fa-solid fa-scale-unbalanced me-2"></i>Non-Uniform Rod Balancing Simulation</h6>
+                            <div class="canvas-container">
+                                <canvas id="momentsCanvas" width="800" height="380"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Live Moments Balance Metrics -->
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="metric-box text-center">
+                                    <div class="metric-label">වාමාවර්ත ඝූර්ණය (Clockwise Moment)</div>
+                                    <div class="metric-val text-info" id="leftMoment">0.0 N·cm</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="metric-box text-center">
+                                    <div class="metric-label">දක්ෂිණාවර්ත ඝූර්ණය (Anti-Clockwise Moment)</div>
+                                    <div class="metric-val text-warning" id="rightMoment">0.0 N·cm</div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="p-3 bg-dark bg-opacity-50 rounded border border-secondary text-center" id="balanceStatus">
+                                    <!-- Dynamic Balance Message -->
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- MathJax -->
+    <script>
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+    <!-- JS Logic -->
+    <script>
+        // Sync Inputs Helper
+        function syncInputs(numId, rangeId, callback) {
+            const num = document.getElementById(numId);
+            const range = document.getElementById(rangeId);
+            num.addEventListener('input', () => { range.value = num.value; callback(); });
+            range.addEventListener('input', () => { num.value = range.value; callback(); });
+        }
+
+        /* ================= PRACTICAL 05: PARALLELOGRAM LAW LOGIC ================= */
+        const paraCanvas = document.getElementById("paraCanvas");
+        const paraCtx = paraCanvas.getContext("2d");
+
+        syncInputs("pNum", "pRange", drawParallelogram);
+        syncInputs("qNum", "qRange", drawParallelogram);
+        syncInputs("alphaNum", "alphaRange", drawParallelogram);
+
+        function drawParallelogram() {
+            let P = parseFloat(document.getElementById("pNum").value);
+            let Q = parseFloat(document.getElementById("qNum").value);
+            let alphaDeg = parseFloat(document.getElementById("alphaNum").value);
+            let alphaRad = alphaDeg * Math.PI / 180;
+
+            // Calculations
+            let R = Math.sqrt(P * P + Q * Q + 2 * P * Q * Math.cos(alphaRad));
+            let thetaRad = Math.atan2(Q * Math.sin(alphaRad), P + Q * Math.cos(alphaRad));
+            let thetaDeg = thetaRad * 180 / Math.PI;
+
+            document.getElementById("rVal").innerText = R.toFixed(2);
+            document.getElementById("thetaVal").innerText = thetaDeg.toFixed(1);
+
+            // Canvas Drawing
+            paraCtx.clearRect(0, 0, paraCanvas.width, paraCanvas.height);
+
+            let originX = 100;
+            let originY = 300;
+            let scale = 9;
+
+            let P_x = originX + P * scale;
+            let P_y = originY;
+
+            let Q_x = originX + Q * scale * Math.cos(alphaRad);
+            let Q_y = originY - Q * scale * Math.sin(alphaRad);
+
+            let R_x = P_x + (Q_x - originX);
+            let R_y = Q_y;
+
+            // Parallelogram Dashed Lines
+            paraCtx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+            paraCtx.lineWidth = 1.5;
+            paraCtx.setLineDash([5, 5]);
+
+            paraCtx.beginPath();
+            paraCtx.moveTo(P_x, P_y);
+            paraCtx.lineTo(R_x, R_y);
+            paraCtx.stroke();
+
+            paraCtx.beginPath();
+            paraCtx.moveTo(Q_x, Q_y);
+            paraCtx.lineTo(R_x, R_y);
+            paraCtx.stroke();
+
+            paraCtx.setLineDash([]);
+
+            // Draw Vector P
+            drawArrow(paraCtx, originX, originY, P_x, P_y, "#00f2fe", "P = " + P + "N");
+            // Draw Vector Q
+            drawArrow(paraCtx, originX, originY, Q_x, Q_y, "#00ff88", "Q = " + Q + "N");
+            // Draw Resultant Vector R
+            drawArrow(paraCtx, originX, originY, R_x, R_y, "#ffb703", "R = " + R.toFixed(1) + "N");
+
+            // Angle Arc
+            paraCtx.strokeStyle = "#ff0055";
+            paraCtx.lineWidth = 2;
+            paraCtx.beginPath();
+            paraCtx.arc(originX, originY, 40, 0, -alphaRad, true);
+            paraCtx.stroke();
+            paraCtx.fillStyle = "#ff0055";
+            paraCtx.fillText("α=" + alphaDeg + "°", originX + 45, originY - 15);
+        }
+
+        function drawArrow(ctx, fromx, fromy, tox, toy, color, label) {
+            let headlen = 10;
+            let dx = tox - fromx;
+            let dy = toy - fromy;
+            let angle = Math.atan2(dy, dx);
+
+            ctx.strokeStyle = color;
+            ctx.fillStyle = color;
+            ctx.lineWidth = 3;
+
+            ctx.beginPath();
+            ctx.moveTo(fromx, fromy);
+            ctx.lineTo(tox, toy);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(tox, toy);
+            ctx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+            ctx.lineTo(tox, toy);
+            ctx.fill();
+
+            ctx.font = "bold 13px sans-serif";
+            ctx.fillText(label, tox + 10, toy - 5);
+        }
+
+        /* ================= PRACTICAL 06: PRINCIPLE OF MOMENTS LOGIC (UPDATED WITH 3D BLOCKS) ================= */
+        const momentsCanvas = document.getElementById("momentsCanvas");
+        const momentsCtx = momentsCanvas.getContext("2d");
+
+        syncInputs("pivotNum", "pivotRange", drawMoments);
+        syncInputs("w1Num", "w1Range", drawMoments);
+        syncInputs("pos1Num", "pos1Range", drawMoments);
+        syncInputs("cgNum", "cgRange", drawMoments);
+        syncInputs("wrNum", "wrRange", drawMoments);
+
+        function drawMoments() {
+            let pivot = parseFloat(document.getElementById("pivotNum").value);
+            let W1 = parseFloat(document.getElementById("w1Num").value);
+            let pos1 = parseFloat(document.getElementById("pos1Num").value);
+            let CG = parseFloat(document.getElementById("cgNum").value);
+            let WR = parseFloat(document.getElementById("wrNum").value);
+
+            // Calculate Moments around Pivot
+            let leftMomentVal = 0;
+            let rightMomentVal = 0;
+
+            if (pos1 < pivot) {
+                leftMomentVal += W1 * (pivot - pos1);
+            } else {
+                rightMomentVal += W1 * (pos1 - pivot);
+            }
+
+            if (CG < pivot) {
+                leftMomentVal += WR * (pivot - CG);
+            } else {
+                rightMomentVal += WR * (CG - pivot);
+            }
+
+            document.getElementById("leftMoment").innerText = leftMomentVal.toFixed(1) + " N·cm";
+            document.getElementById("rightMoment").innerText = rightMomentVal.toFixed(1) + " N·cm";
+
+            let diff = leftMomentVal - rightMomentVal;
+            let statusBox = document.getElementById("balanceStatus");
+
+            // Tilt Angle
+            let tilt = Math.max(-15, Math.min(15, diff * 0.2));
+
+            if (Math.abs(diff) < 0.5) {
+                statusBox.innerHTML = `<span class="text-success fw-bold"><i class="fa-solid fa-circle-check me-2"></i>දණ්ඩ සමතුලිතතාවයේ පවතී! (Equilibrium Reached)</span>`;
+            } else if (diff > 0) {
+                statusBox.innerHTML = `<span class="text-warning fw-bold"><i class="fa-solid fa-rotate-left me-2"></i>වාමාවර්තව ඇල වී ඇත! (Tilted Anti-Clockwise)</span>`;
+            } else {
+                statusBox.innerHTML = `<span class="text-danger fw-bold"><i class="fa-solid fa-rotate-right me-2"></i>දක්ෂිණාවර්තව ඇල වී ඇත! (Tilted Clockwise)</span>`;
+            }
+
+            // Draw Canvas
+            momentsCtx.clearRect(0, 0, momentsCanvas.width, momentsCanvas.height);
+
+            let originX = 100;
+            let originY = 200;
+            let rodLengthPx = 600;
+
+            momentsCtx.save();
+            let pivotPx = originX + (pivot / 100) * rodLengthPx;
+            momentsCtx.translate(pivotPx, originY);
+            momentsCtx.rotate((tilt * Math.PI) / 180);
+
+            // 1. Draw 3D Beam Rod
+            let rodLeft = - (pivot / 100) * rodLengthPx;
+            
+            // Beam Shadow
+            momentsCtx.fillStyle = "rgba(0, 0, 0, 0.4)";
+            momentsCtx.fillRect(rodLeft + 5, 5, rodLengthPx, 20);
+
+            // Beam Main Body (Gradient)
+            let rodGrad = momentsCtx.createLinearGradient(0, -10, 0, 10);
+            rodGrad.addColorStop(0, '#00f2fe');
+            rodGrad.addColorStop(0.5, '#008ba3');
+            rodGrad.addColorStop(1, '#004a57');
+            momentsCtx.fillStyle = rodGrad;
+            momentsCtx.fillRect(rodLeft, -10, rodLengthPx, 20);
+
+            // Beam Bevel Highlight
+            momentsCtx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            momentsCtx.fillRect(rodLeft, -10, rodLengthPx, 3);
+
+            // 2. Draw W1 Attached Mass (3D Hanging Block with String)
+            let w1Px = (- (pivot - pos1) / 100) * rodLengthPx;
+            drawHanging3DBlock(momentsCtx, w1Px, 10, W1, "#ff0055", "W1 = " + W1 + "N");
+
+            // 3. Draw WR (CG) Center of Mass (3D Block Resting on top of the rod)
+            let cgPx = ((CG - pivot) / 100) * rodLengthPx;
+            drawMounted3DBlock(momentsCtx, cgPx, -10, WR, "#ffb703", "WR(CG) = " + WR + "N");
+
+            momentsCtx.restore();
+
+            // 4. Draw 3D Static Stand (Fulcrum)
+            draw3DFulcrum(momentsCtx, pivotPx, originY);
+        }
+
+        // Helper: Draw 3D Hanging Mass (Block + String)
+        function drawHanging3DBlock(ctx, x, y, weight, mainColor, label) {
+            let stringLen = 35;
+            let blockW = 30 + weight * 1.2;
+            let blockH = 25 + weight * 1.5;
+            let depth = 10;
+
+            // Hanging String
+            ctx.strokeStyle = "#cbd5e1";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x, y + stringLen);
+            ctx.stroke();
+
+            // Hook Dot
+            ctx.fillStyle = "#ff0055";
+            ctx.beginPath();
+            ctx.arc(x, y + stringLen, 3, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Block Position
+            let bx = x - blockW / 2;
+            let by = y + stringLen;
+
+            // 3D Front Face
+            ctx.fillStyle = mainColor;
+            ctx.fillRect(bx, by, blockW, blockH);
+
+            // 3D Top Face
+            ctx.fillStyle = "#ff6699";
+            ctx.beginPath();
+            ctx.moveTo(bx, by);
+            ctx.lineTo(bx + depth, by - depth);
+            ctx.lineTo(bx + blockW + depth, by - depth);
+            ctx.lineTo(bx + blockW, by);
+            ctx.closePath();
+            ctx.fill();
+
+            // 3D Right Side Face
+            ctx.fillStyle = "#990033";
+            ctx.beginPath();
+            ctx.moveTo(bx + blockW, by);
+            ctx.lineTo(bx + blockW + depth, by - depth);
+            ctx.lineTo(bx + blockW + depth, by + blockH - depth);
+            ctx.lineTo(bx + blockW, by + blockH);
+            ctx.closePath();
+            ctx.fill();
+
+            // Label
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "bold 12px sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText(label, x, by + blockH + 18);
+        }
+
+        // Helper: Draw 3D Mounted Mass on top of the Beam
+        function drawMounted3DBlock(ctx, x, y, weight, mainColor, label) {
+            let blockW = 32 + weight * 1.2;
+            let blockH = 26 + weight * 1.5;
+            let depth = 10;
+
+            let bx = x - blockW / 2;
+            let by = y - blockH;
+
+            // 3D Front Face
+            ctx.fillStyle = mainColor;
+            ctx.fillRect(bx, by, blockW, blockH);
+
+            // 3D Top Face
+            ctx.fillStyle = "#ffe066";
+            ctx.beginPath();
+            ctx.moveTo(bx, by);
+            ctx.lineTo(bx + depth, by - depth);
+            ctx.lineTo(bx + blockW + depth, by - depth);
+            ctx.lineTo(bx + blockW, by);
+            ctx.closePath();
+            ctx.fill();
+
+            // 3D Right Side Face
+            ctx.fillStyle = "#996e00";
+            ctx.beginPath();
+            ctx.moveTo(bx + blockW, by);
+            ctx.lineTo(bx + blockW + depth, by - depth);
+            ctx.lineTo(bx + blockW + depth, by + blockH - depth);
+            ctx.lineTo(bx + blockW, by + blockH);
+            ctx.closePath();
+            ctx.fill();
+
+            // Label Above
+            ctx.fillStyle = "#ffb703";
+            ctx.font = "bold 12px sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText(label, x, by - depth - 8);
+        }
+
+        // Helper: Draw Metallic 3D Fulcrum
+        function draw3DFulcrum(ctx, x, y) {
+            // Shadow
+            ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+            ctx.beginPath();
+            ctx.ellipse(x, y + 62, 35, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Front Triangle
+            let fGrad = ctx.createLinearGradient(x - 25, y, x + 25, y);
+            fGrad.addColorStop(0, '#00ff88');
+            fGrad.addColorStop(0.5, '#00a859');
+            fGrad.addColorStop(1, '#00522b');
+
+            ctx.fillStyle = fGrad;
+            ctx.beginPath();
+            ctx.moveTo(x, y + 8);
+            ctx.lineTo(x - 25, y + 60);
+            ctx.lineTo(x + 25, y + 60);
+            ctx.closePath();
+            ctx.fill();
+
+            // 3D Edge Shading
+            ctx.fillStyle = "#00381d";
+            ctx.beginPath();
+            ctx.moveTo(x, y + 8);
+            ctx.lineTo(x + 25, y + 60);
+            ctx.lineTo(x + 32, y + 54);
+            ctx.lineTo(x + 5, y + 5);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // Initial Calls
+        drawParallelogram();
+        drawMoments();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A/L Chemistry Practicals Dashboard</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-dark: #090d16;
+            --card-bg: rgba(17, 24, 39, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --accent-purple: #8b5cf6;
+            --accent-cyan: #06b6d4;
+            --accent-pink: #ec4899;
+            --accent-amber: #f59e0b;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(at 10% 10%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 90% 90%, rgba(6, 182, 212, 0.12) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+        }
+
+        .navbar-custom {
+            background: rgba(9, 13, 22, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            height: 100%;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(139, 92, 246, 0.4);
+            box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.6);
+        }
+
+        .hero-title {
+            background: linear-gradient(135deg, #c084fc 0%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .cat-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            margin-bottom: 15px;
+        }
+
+        .icon-volumetric {
+            background: rgba(6, 182, 212, 0.15);
+            color: #22d3ee;
+            border: 1px solid rgba(6, 182, 212, 0.3);
+        }
+
+        .icon-inorganic {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .icon-organic {
+            background: rgba(236, 72, 153, 0.15);
+            color: #f472b6;
+            border: 1px solid rgba(236, 72, 153, 0.3);
+        }
+
+        .icon-physical {
+            background: rgba(139, 92, 246, 0.15);
+            color: #c084fc;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .practical-item {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+        }
+
+        .practical-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-view {
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #7c3aed, #0891b2);
+            color: white;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-view:hover {
+            color: white;
+            opacity: 0.9;
+            box-shadow: 0 0 12px rgba(124, 58, 237, 0.5);
+        }
+
+        .search-box {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border-color);
+            color: white !important;
+            border-radius: 12px;
+            padding: 14px 20px;
+        }
+
+        .search-box:focus {
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <nav class="navbar navbar-dark navbar-custom sticky-top py-3">
+        <div class="container">
+            <!-- Home Link -->
+            <a class="navbar-brand fw-bold fs-5 d-flex align-items-center" href="index.html">
+                <i class="fa-solid fa-house text-info me-2"></i>
+                <span>NEXUS Physics  Lab</span>
+            </a>
+            <span class="badge bg-purple px-3 py-2 rounded-pill fw-bold" style="background-color: #7c3aed;">
+                <i class="fa-solid fa-vial-circle-check me-1"></i> Physics Practicals
+            </span>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        
+        <!-- Header Banner -->
+        <div class="text-center mb-5">
+            <h1 class="hero-title display-5 mb-3">Physics Practical Directory</h1>
+            <p class="text-secondary fs-5 mx-auto" style="max-width: 650px;">
+                A/L විෂය නිර්දේශයේ ප්‍රායෝගික පරීක්ෂණ කාණ්ඩ (Categories) අනුව වර්ගීකරණය කර ඇත. ඔබට අවශ්‍ය Practical එක පහසුවෙන් තෝරාගන්න.
+            </p>
+            
+            
+        </div>
+
+        <!-- Categories Grid -->
+        <div class="row g-4" id="categoriesContainer">
+            
+            <!-- Category 1: Volumetric Analysis (පරිමාමිතික විෂ්ලේෂණය) -->
+            <div class="col-lg-6 category-card">
+                <div class="glass-card p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="cat-icon icon-inorganic">
+                            <i class="fa-solid fa-vials"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold mb-0 text-white">1. වර්නියර් කැලිපරය භාවිත</h4>
+                            <small class="text-info"></small>
+                        </div>
+                    </div>
+                    <div class="practical-list">
+                        <div class="practical-item">
+                            <span class="fw-semibold text-light">1.1 🔬Simulator</span>
+                            <a href="vernier-caliper.html?id=volumetric1" class="btn-view">පිවිසෙන්න <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                        </div>
+                        <div class="practical-item">
+                            <span class="fw-semibold text-light">1.2 Practical Video</span>
+                            <a href="https://youtu.be/DZEfX4NFDLg" class="btn-view">පිවිසෙන්න <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category 2: Inorganic Qualitative Analysis (අකාබනික ගුණාත්මක විෂ්ලේෂණය) -->
+            <div class="col-lg-6 category-card">
+                <div class="glass-card p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="cat-icon icon-inorganic">
+                            <i class="fa-solid fa-vials"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold mb-0 text-white">2.  මයික්‍රෝමීටර් ඉස්කුරුප්පු ආමානය</h4>
+                            <small class="text-warning"></small>
+                        </div>
+                    </div>
+                    <div class="practical-list">
+                        <div class="practical-item">
+                            <span class="fw-semibold text-light">2.1  🔬Simulator</span>
+                            <a href="practical2.html?id=inorganic1" class="btn-view">පිවිසෙන්න <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                        </div>
+                        <div class="practical-item">
+                            <span class="fw-semibold text-light">2.2 Practical Video </span>
+                            <a href="https://youtu.be/Z8U3RY8sVRw" class="btn-view">පිවිසෙන්න <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                        </div>
+                         </div>
+                </div>
+            </div>
+                        
+                                    <!-- Category 2: Inorganic Qualitative Analysis (අකාබනික ගුණාත්මක විෂ්ලේෂණය) -->
+            <div class="col-lg-6 category-card">
+                <div class="glass-card p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="cat-icon icon-inorganic">
+                            <i class="fa-solid fa-vials"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold mb-0 text-white">3.ගෝලමානය</h4>
+                            <small class="text-warning"></small>
+                        </div>
+                    </div>
+                    <div class="practical-list">
+                        <div class="practical-item">
+                            <span class="fw-semibold text-light">3.1  🔬Simulator</span>
+                            <a href="gola.html?id=inorganic1" class="btn-view">පිවිසෙන්න <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                        </div>
+                        <div class="practical-item">
+                            <span class="fw-semibold text-light">3.2 Practical Video </span>
+                            <a href="https://youtu.be/EPNxatmApmk" class="btn-view">පිවිසෙන්න <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                        </div>
+                         </div>
+                </div>
+            </div>
+
+                                    <!-- Category 2: Inorganic Qualitative Analysis (අකාබනික ගුණාත්මක විෂ්ලේෂණය) -->
+            <div class="col-lg-6 category-card">
+                <div class="glass-card p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="cat-icon icon-inorganic">
+                            <i class="fa-solid fa-vials"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold mb-0 text-white">4. චල අන්වීක්ෂය</h4>
+                            <small class="text-warning"></small>
+                        </div>
+                    </div>
+                    <div class="practical-list">
+                        <div class="practical-item">
+                            <span class="fw-semibold text-light">4.1  🔬Simulator</span>
+                            <a href="chala.html?id=inorganic1" class="btn-view">පිවිසෙන්න <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                        </div>
+                        <div class="practical-item">
+                            <span class="fw-semibold text-light">4.2 Practical Video </span>
+                            <a href="https://youtu.be/DNDe1owhI70" class="btn-view">පිවිසෙන්න <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                        </div>
+                         </div>
+                </div>
+            </div>
+
+                                    <!-- Category 2: Inorganic Qualitative Analysis (අකාබනික ගුණාත්මක විෂ්ලේෂණය) -->
+            <div class="col-lg-6 category-card">
+                <div class="glass-card p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="cat-icon icon-inorganic">
+                            <i class="fa-solid fa-vials"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold mb-0 text-white">5.තෙදඩු තුලාව</h4>
+                            <small class="text-warning"></small>
+                        </div>
+                    </div>
+                    <div class="practical-list">
+                        <div class="practical-item">
+                            <span class="fw-semibold text-light">5.1 🔬 Simulator</span>
+                            <a href="the.html?id=inorganic1" class="btn-view">පිවිසෙන්න <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                        </div>
+                        <div class="practical-item">
+                            <span class="fw-semibold text-light">5.2 Practical Video </span>
+                            <a href="https://youtu.be/PRhSs6Oh7Qc?list=PLZaHcontNCl6E0zyb19UW6kpp16axLny4" class="btn-view">පිවිසෙන්න <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6 category-card">
+                <div class="glass-card p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="cat-icon icon-inorganic">
+                            <i class="fa-solid fa-vials"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold mb-0 text-white">6.බල ඝූර්ණ මූලධර්මය</h4>
+                            <small class="text-warning"></small>
+                        </div>
+                    </div>
+                    <div class="practical-list">
+                        <div class="practical-item">
+                            <span class="fw-semibold text-light">6.1 🔬 Simulator</span>
+                            <a href="physics4.html?id=inorganic1" class="btn-view">පිවිසෙන්න <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                        </div>
+                        <div class="practical-item">
+                            <span class="fw-semibold text-light">6.2 Practical Video </span>
+                            <a href="https://youtu.be/qlGKD3aqABI?list=PLZaHcontNCl6E0zyb19UW6kpp16axLny4" class="btn-view">පිවිසෙන්න <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+
+              <div class="col-lg-6 category-card">
+                <div class="glass-card p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="cat-icon icon-inorganic">
+                            <i class="fa-solid fa-vials"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold mb-0 text-white">7.බල සමාන්තරාස්‍ර මූලධර්මය</h4>
+                            <small class="text-warning"></small>
+                        </div>
+                    </div>
+                    <div class="practical-list">
+                        <div class="practical-item">
+                            <span class="fw-semibold text-light">7.1 🔬 Simulator</span>
+                            <a href="physics4.html?id=inorganic1" class="btn-view">පිවිසෙන්න <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                        </div>
+                        <div class="practical-item">
+                            <span class="fw-semibold text-light">7.2 Practical Video </span>
+                            <a href="https://youtu.be/Hv0fUgcKlLc?list=PLZaHcontNCl6E0zyb19UW6kpp16axLny4" class="btn-view">පිවිසෙන්න <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6 category-card">
+                <div class="glass-card p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="cat-icon icon-inorganic">
+                            <i class="fa-solid fa-vials"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold mb-0 text-white">8.බර යෙදූ පරීක්ෂා නලයක් භාවිතයෙන් ද්‍රවයක ඝනත්වය සෙවීම</h4>
+                            <small class="text-warning"></small>
+                        </div>
+                    </div>
+                    <div class="practical-list">
+                        <div class="practical-item">
+                            <span class="fw-semibold text-light">8.1 🔬 Simulator</span>
+                            <a href="physics5.html?id=inorganic1" class="btn-view">පිවිසෙන්න <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                        </div>
+                        <div class="practical-item">
+                            <span class="fw-semibold text-light">8.2 Practical Video </span>
+                            <a href="https://youtu.be/upE7_a5OqCw?list=PLZaHcontNCl6E0zyb19UW6kpp16axLny4" class="btn-view">පිවිසෙන්න <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+
+             <div class="col-lg-6 category-card">
+                <div class="glass-card p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="cat-icon icon-inorganic">
+                            <i class="fa-solid fa-vials"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold mb-0 text-white">9.හෙයාර් උපකරණය මගින් ද්‍රවයක සාපේක්ෂ ඝනත්වය සෙවීම</h4>
+                            <small class="text-warning"></small>
+                        </div>
+                    </div>
+                    <div class="practical-list">
+                        <div class="practical-item">
+                            <span class="fw-semibold text-light">9.1  🔬Simulator</span>
+                            <a href="physics5.html?id=inorganic1" class="btn-view">පිවිසෙන්න <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                        </div>
+                        <div class="practical-item">
+                            <span class="fw-semibold text-light">9.2 Practical Video </span>
+                            <a href="https://youtu.be/7a-CzxJneuk?list=PLZaHcontNCl6E0zyb19UW6kpp16axLny4" class="btn-view">පිවිසෙන්න <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+
+             <div class="col-lg-6 category-card">
+                <div class="glass-card p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="cat-icon icon-inorganic">
+                            <i class="fa-solid fa-vials"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold mb-0 text-white">10.U නළය මගින් ද්‍රවයක සාපේක්ෂ ඝනත්වය සෙවීම</h4>
+                            <small class="text-warning"></small>
+                        </div>
+                    </div>
+                    <div class="practical-list">
+                        <div class="practical-item">
+                            <span class="fw-semibold text-light">10.1 🔬 Simulator</span>
+                            <a href="physics5.html?id=inorganic1" class="btn-view">පිවිසෙන්න <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                        </div>
+                        <div class="practical-item">
+                            <span class="fw-semibold text-light">10.2 Practical Video </span>
+                            <a href="https://youtu.be/n6oxed4Grd4?list=PLZaHcontNCl6E0zyb19UW6kpp16axLny4" class="btn-view">පිවිසෙන්න <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+    <!-- JavaScript Filter Functionality -->
+    <script>
+        function filterPracticals() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const items = document.querySelectorAll('.practical-item');
+            
+            items.forEach(item => {
+                const text = item.innerText.toLowerCase();
+                if(text.includes(query)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
